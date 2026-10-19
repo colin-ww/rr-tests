@@ -16,7 +16,7 @@ Your report: `box::use()` at the top of `_targets.R` worked with plain `tar_make
   - `tar_option_set(packages =)` (above) is the one that loads packages on workers.
   - `tar_load_globals()` runs `_targets.R` in **your own** R session, for debugging. It does nothing for workers. (Checked: after it, `mod:dplyr` was attached in my session.)
   - `tar_load()` reads a finished target's value. It has nothing to do with packages.
-- **Recommended:** keep pipeline functions in box modules. Import the *module object* at the top of `_targets.R`. Call `mod$fn()` in the commands. See "What to do".
+- **Recommended:** keep pipeline functions in box modules. Import the *module object* at the top of `_targets.R`. Call `mod$fn()` in the commands. See "What to do". **Changed after issue #5:** module objects cache badly. The new first choice is `tar_option_set(envir = new.env(parent = globalenv()))` + `tar_source()`, with `box::use()` at the top of each file ([08](08-box-caching.md#what-to-do-ranked-each-tested-above)).
 - **If you want to keep your current top-of-script style:** crew can run the same `box::use()` line on every worker when the worker starts. See "Running setup code on every crew worker". It works, but it is a workaround.
 - **A second trap, even without crew.** `box::use(mods/x)` at the top of `_targets.R` fails under plain `tar_make()` unless box is told where your modules are (`options(box.path = ...)` or the `R_BOX_PATH` environment variable).
   - *Guess, not checked:* one of these was probably already set on your machine. That would explain why it worked before.
@@ -150,11 +150,14 @@ Side findings:
 - **Module objects are tracked, but as one block.** targets saves a fingerprint (hash) of a top-level module object, like any other global. The fingerprint stays the same between sessions: a second run re-ran 0 targets.
   - An edit **anywhere** in the module re-runs **every** target that uses that module. Tested: I edited only `add_x`, and both `clean$add_x()` and `clean$add_y()` targets became outdated.
   - Functions loaded with `tar_source()` are tracked one by one. With the same edit, only the `add_x` target became outdated.
+  - Issue #5 found more: the fingerprint also includes every line of the module file, its modification time and its full path. See [08](08-box-caching.md).
 - **Cost of `box::use()` inside a function, per call:** about 3.8 ms for `dplyr[mutate]` and about 0.6 ms for an already-loaded module. `dplyr::mutate` takes under 1 microsecond. This does not matter once per target. It adds up inside a loop: 10,000 calls is about 40 s.
 - **Packages stay attached on crew workers between tasks.** `crew_controller_local()` defaults to `reset_packages = FALSE` (and `reset_options = FALSE`). Tested with one worker: after one task ran `library(dplyr)`, a later task found `mutate`. So a `library()` call inside one target can make a later target on the same worker work by accident. (`box::use()` inside a command did not leave anything behind.)
 - **Testing these pipelines inside testthat hides the callr trap.** testthat sets `TESTTHAT=true`, and then box looks for modules in `getwd()` (box `R/paths.r`, `testthat_path()`, line 175). `tests/testthat/test-targets.R` turns this off for the R processes it starts.
 
 ## What to do (ranked; each tested above)
+
+> **Updated after issue #5.** Option 1 below re-runs too much: any edit, comment, spacing change, newer file time or other project folder re-runs every target that uses the module. The new first choice is `tar_option_set(envir = new.env(parent = globalenv()))` + `tar_source()`, with `box::use()` at the top of each file. It works on crew and caches one function at a time ([08](08-box-caching.md#what-to-do-ranked-each-tested-above)). The ranking below is the original one from issue #3.
 
 1. **Put functions in box modules, and import the module object at the top of `_targets.R`** (`mod_alias_top`; this exact file was also run with crew).
 

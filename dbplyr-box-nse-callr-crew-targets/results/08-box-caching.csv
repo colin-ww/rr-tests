@@ -1,0 +1,134 @@
+part,variant,about,change,should_rerun,result
+run,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"tar_make(), no controller",NA,works
+run,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"tar_make(), crew",NA,FAILS: could not find function 'mutate'
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"nothing (2nd run, new R session)",none,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"file touched: same text, newer modification time",none,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),comment line added at the end of the file,none,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),project folder copied elsewhere (same file times),none,none
+change,src_global,tar_source() (functions in the global env; box::use() at the top of R/clean.R),all changes undone,none,none
+run,src_envir,tar_option_set(envir = new.env()) + tar_source(),"tar_make(), no controller",NA,works
+run,src_envir,tar_option_set(envir = new.env()) + tar_source(),"tar_make(), crew",NA,works
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),"nothing (2nd run, new R session)",none,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),"file touched: same text, newer modification time",none,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),comment line added at the end of the file,none,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),project folder copied elsewhere (same file times),none,none
+change,src_envir,tar_option_set(envir = new.env()) + tar_source(),all changes undone,none,none
+run,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"tar_make(), no controller",NA,works
+run,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"tar_make(), crew",NA,works
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"nothing (2nd run, new R session)",none,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"file touched: same text, newer modification time",none,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,comment line added at the end of the file,none,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,project folder copied elsewhere (same file times),none,none
+change,src_scoped,tar_option_set(envir = new.env()) + source_scoped(): tar_source() with one scope per file,all changes undone,none,none
+run,src_helper_naive,tar_source(); each function calls clean_imports() = function() box::use(...),"tar_make(), no controller",NA,FAILS: could not find function 'mutate'
+run,src_helper_naive,tar_source(); each function calls clean_imports() = function() box::use(...),"tar_make(), crew",NA,FAILS: could not find function 'mutate'
+run,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"tar_make(), no controller",NA,works
+run,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"tar_make(), crew",NA,works
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"nothing (2nd run, new R session)",none,none
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"file touched: same text, newer modification time",none,none
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),comment line added at the end of the file,none,none
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,"out_x, out_y"
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),project folder copied elsewhere (same file times),none,none
+change,src_helper_fixed,tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...))),all changes undone,none,none
+run,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","tar_make(), no controller",NA,works
+run,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","tar_make(), crew",NA,works
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","nothing (2nd run, new R session)",none,none
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","file touched: same text, newer modification time",none,"out_x, out_y"
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",comment line added at the end of the file,none,"out_x, out_y"
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","spaces only, in add_y (var1 * 2 -> var1*2)",none,"out_x, out_y"
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",add_y changed (var1 * 2 -> var1 * 3),out_y,"out_x, out_y"
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,n/a
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",project folder copied elsewhere (same file times),none,"out_x, out_y"
+change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",all changes undone,none,none
+run,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","tar_make(), no controller",NA,works
+run,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","tar_make(), crew",NA,works
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","nothing (2nd run, new R session)",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","file touched: same text, newer modification time",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",comment line added at the end of the file,none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",add_y changed (var1 * 2 -> var1 * 3),out_y,"out_x, out_y"
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,n/a
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",project folder copied elsewhere (same file times),none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",all changes undone,none,none
+run,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"tar_make(), no controller",NA,works
+run,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"tar_make(), crew",NA,works
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"nothing (2nd run, new R session)",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"file touched: same text, newer modification time",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),comment line added at the end of the file,none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),project folder copied elsewhere (same file times),none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),all changes undone,none,none
+run,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","tar_make(), no controller",NA,works
+run,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","tar_make(), crew",NA,works
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","nothing (2nd run, new R session)",none,none
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","file touched: same text, newer modification time",none,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)",comment line added at the end of the file,none,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","spaces only, in add_y (var1 * 2 -> var1*2)",none,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)",add_y changed (var1 * 2 -> var1 * 3),out_y,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)",project folder copied elsewhere (same file times),none,"out_x, out_y"
+change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)",all changes undone,none,none
+run,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","tar_make(), no controller",NA,works
+run,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","tar_make(), crew",NA,FAILS: could not find function 'add_x'
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","nothing (2nd run, new R session)",none,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","file touched: same text, newer modification time",none,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)",comment line added at the end of the file,none,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)",add_y changed (var1 * 2 -> var1 * 3),out_y,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)",project folder copied elsewhere (same file times),none,none
+change,mod_attach,"options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)",all changes undone,none,none
+run,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"tar_make(), no controller",NA,works
+run,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"tar_make(), crew",NA,works
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"nothing (2nd run, new R session)",none,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"file touched: same text, newer modification time",none,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,comment line added at the end of the file,none,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,add_y changed (var1 * 2 -> var1 * 3),out_y,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,project folder copied elsewhere (same file times),none,none
+change,mod_in_fn,options(box.path = getwd()) + box::use(R/clean) inside wrapper functions in _targets.R,all changes undone,none,none
+why,mod_object,NA,class,NA,box$mod
+why,mod_object,NA,srcfile,NA,"Enc, filename, fixedNewlines, isFile, lines, parseData, timestamp, wd"
+why,mod_object,NA,filename_absolute,NA,TRUE
+why,mod_object,NA,wd,NA,TRUE
+why,mod_object,NA,timestamp_is_mtime,NA,TRUE
+why,mod_object,NA,lines_are_whole_file,NA,TRUE
+why,mod_object,NA,touch_changes_module_hash,NA,TRUE
+why,mod_object,NA,touch_changes_fn_hash,NA,FALSE
+why,mod_object,NA,first_call_changes_module_hash,NA,TRUE
+why,mod_object,NA,keep_source_in_callr,NA,FALSE
+sitrep,mod_object,NA,file touched: tar_sitrep(),none,"out_x: depend = TRUE, out_y: depend = TRUE"
+sitrep,src_envir,NA,file touched: tar_sitrep(),none,"out_x: depend = FALSE, out_y: depend = FALSE"
+same_session,mod_object,NA,nothing edited,none,"outdated: out_x, out_y | new add_y in use: FALSE"
+same_session,mod_object,NA,"nothing edited, byte-compiler off (compiler::enableJIT(0))",none,outdated: none | new add_y in use: FALSE
+same_session,mod_object,NA,add_y edited,out_y,"outdated: out_x, out_y | new add_y in use: FALSE"
+same_session,mod_object,NA,"add_y edited, box::purge_cache() before tar_outdated()",out_y,"outdated: out_x, out_y | new add_y in use: TRUE"
+same_session,src_global,NA,nothing edited,none,outdated: none | new add_y in use: FALSE
+same_session,src_global,NA,add_y edited,out_y,outdated: out_y | new add_y in use: TRUE
+envir_const,envir_const_top,NA,"tar_make(), no controller",NA,works
+envir_const,envir_const_top,NA,"tar_make(), crew",NA,FAILS: object 'multiplier' not found
+envir_const,envir_const_top,NA,multiplier changed to 20: tar_outdated(),out_m,none
+envir_const,envir_const_rfile,NA,"tar_make(), no controller",NA,works
+envir_const,envir_const_rfile,NA,"tar_make(), crew",NA,works
+envir_const,envir_const_rfile,NA,multiplier changed to 20: tar_outdated(),out_m,out_m
+envir_const,src_envir,NA,tar_load_globals(): add_x in my session? / in tar_option_get('envir')? / in my session after attach()?,NA,FALSE TRUE TRUE
+two_files,src_envir,NA,"tar_make(), no controller",NA,own file's import: 3 | other file's import: 3
+two_files,src_envir,NA,"tar_make(), crew",NA,own file's import: 3 | other file's import: 3
+two_files,src_envir,NA,times2() in R/util.R changed: tar_outdated(),out_x,out_x
+two_files,src_scoped,NA,"tar_make(), no controller",NA,"own file's import: 3 | other file's import: error: could not find function ""n_distinct"""
+two_files,src_scoped,NA,"tar_make(), crew",NA,"own file's import: 3 | other file's import: error: could not find function ""n_distinct"""
+two_files,src_scoped,NA,times2() in R/util.R changed: tar_outdated(),out_x,out_x

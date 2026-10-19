@@ -20,6 +20,7 @@ These are drafts only. Filing is your call.
 | 10 | tidyverse/dbplyr | Oracle: Date/POSIXct values spliced into a query are escaped as plain strings and fail with ORA-01861 |
 | 11 | ropensci/targets | tar_option_set(imports = "dplyr") fails with 'igraph::is_dag(graph) is not TRUE' (mutually recursive package functions) |
 | 12 | klmr/box | (comment for #199) box::use() at the top of a targets _targets.R fails under tar_make() because callr runs R with -f <tempfile> |
+| 13 | ropensci/targets | Imported lists / environments of functions (box modules) are fingerprinted with their source references (modification time, full path, every line) and byte code |
 
 ## 1. tidyverse/dbplyr: Calls with a non-symbol function (`obj$fn(col)`, `(\(x) ...)(col)`) are evaluated in R and silently use a same-named local variable instead of the column
 
@@ -381,6 +382,72 @@ Possible fix: in `r_path()`, ignore `-f` files that are callr temp scripts (base
 
 </details>
 
+## 13. ropensci/targets: Imported lists / environments of functions (box modules) are fingerprinted with their source references (modification time, full path, every line) and byte code
+
+*Related, already on the tracker:* discussion #1188 "Using targets from 2 different machines always causes outdated targets" (the poster traced it to box modules; the thread did not find why) and discussion #936 "Rprofile, callr, and setting options – compatibility with box". No issue found: issue searches for "box::use", "module" and "srcref" in ropensci/targets returned nothing related. Seen via GitHub's web search pages (titles; the two discussions' opening posts and answers), not the full tracker.
+
+> Note for you: file this as an **issue**, not a PR. Any fix changes existing fingerprints, so pipelines re-run once after upgrading, and that trade-off is the maintainer's call. The last paragraph (per-function tracking of `mod$fn()`) is optional; delete it if you want the issue small.
+
+<details><summary>Draft body</summary>
+
+targets 1.12.0 (same code in dev 1.12.0.9001), R 4.6.1, Linux.
+
+Imported functions are fingerprinted from their deparsed code (`tar_deparse_safe()`), so comments, spacing, file times and paths don't matter. Every other import goes through `hash_import_object.default()` -> `secretbase::siphash13(object)`, i.e. the serialized object. For a **list or environment of functions** that includes each function's srcref and its `srcfile` environment: all lines of the file, `timestamp` (the file's modification time), `filename`, `wd` and `parseData`. `tar_source()` parses with `keep.source = TRUE`, so this applies to any list of functions defined in `R/`.
+
+Reprex, no box involved:
+
+```r
+# R/clean.R
+clean <- list(
+  add_x = function(d) transform(d, x = var1 * 2),
+  add_y = function(d) transform(d, y = var1 * 2)
+)
+```
+
+```r
+# _targets.R
+library(targets)
+tar_source()
+list(
+  tar_target(raw, data.frame(var1 = 1:3)),
+  tar_target(out_x, clean$add_x(raw)),
+  tar_target(out_y, clean$add_y(raw))
+)
+```
+
+```r
+targets::tar_make()
+targets::tar_outdated()
+#> character(0)
+Sys.setFileTime("R/clean.R", Sys.time() + 60)   # same text, newer modification time
+targets::tar_outdated()
+#> [1] "out_x" "out_y"
+```
+
+Expected: `character(0)`, as with top-level functions `add_x()` / `add_y()`.
+
+It matters most for box modules: `box::use(mods/clean)` creates an environment of class `box$mod`, and box always parses with `keep.source = TRUE` (it needs the comments for `#' @export`). Results with one change at a time to the file, then `tar_outdated()` (a fresh R process each time):
+
+| change | top-level functions (`tar_source()`) | list of functions (`tar_source()`) | box module (`box::use()`) |
+|---|---|---|---|
+| none (2nd run) | – | – | – |
+| same text, newer modification time | – | out_x, out_y | out_x, out_y |
+| comment added | – | out_x, out_y | out_x, out_y |
+| spaces only, in `add_y` | – | out_x, out_y | out_x, out_y |
+| `add_y` edited | out_y | out_x, out_y | out_x, out_y |
+| project copied to another folder (same file times) | – | out_x, out_y | out_x, out_y |
+
+The absolute path in the srcref would also explain #1188 (one store, two machines, always outdated).
+
+There is a second, smaller effect: R's JIT compiles a closure on its first call, which changes its serialization. A normal `tar_make()` hashes imports before running targets, so it's fine. But with `tar_make(callr_function = NULL)`, a second run in the same session re-runs every target that uses a box module, with no changes at all. It doesn't with `compiler::enableJIT(0)`.
+
+Possible fixes (your call):
+1. Hash lists element-wise, using the function path for functions. For a list in the global environment, hashing `lapply(x, utils::removeSource)` was stable across both the file-time change and the first call (I checked). That doesn't cover box modules: their functions close over the module namespace, which is serialized along with them, together with private helpers and imports. Environments would need a walk over such enclosing environments.
+2. Or document that lists/environments of functions are fingerprinted with their source references, and recommend top-level functions.
+
+Optional, larger: per-function tracking for `mod$fn()`. The command `clean$add_x(raw)` depends on `clean` only (`codetools::findGlobals()` gives `$`, `clean`, `raw`), so editing one function in a module invalidates every target that uses any function of that module. I realise this is a bigger design question. I'm mentioning it in case it fits.
+
+</details>
 
 ---
 [← back to README](../README.md) · [plain-language explanations](upstream-issues.md)
