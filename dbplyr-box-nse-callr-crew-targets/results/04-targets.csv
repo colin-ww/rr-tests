@@ -1,0 +1,63 @@
+part,variant,mode,target,about,error,value,outcome,ran_on,rerun_2nd,outdated_after_edit
+targets,pkg_box_top,none,out,box::use(dplyr[mutate]) at top of _targets.R,NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_box_top,crew,out,box::use(dplyr[mutate]) at top of _targets.R,could not find function 'mutate',NA,error,crew,NA,NA
+targets,pkg_box_alias_top,none,out,"box::use(dplyr) at top, dplyr$mutate() in fn",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_box_alias_top,crew,out,"box::use(dplyr) at top, dplyr$mutate() in fn",NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_box_in_fn,none,out,box::use(dplyr[mutate]) inside the function,NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_box_in_fn,crew,out,box::use(dplyr[mutate]) inside the function,NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_library_top,none,out,library(dplyr) at top of _targets.R,NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_library_top,crew,out,library(dplyr) at top of _targets.R,NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_packages_opt,none,out,"tar_option_set(packages = ""dplyr"")",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_packages_opt,crew,out,"tar_option_set(packages = ""dplyr"")",NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_qualified,none,out,"dplyr::mutate() in fn, no imports",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_qualified,crew,out,"dplyr::mutate() in fn, no imports",NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_box_top_main,none,out,"box::use top + deployment = ""main"" on the target",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_box_top_main,crew,out,"box::use top + deployment = ""main"" on the target",NA,"x=2,4,6",ok,main process,NA,NA
+targets,pkg_box_top_imports,none,out,"box::use top + tar_option_set(imports = ""dplyr"")",igraph::is_dag(graph) is not TRUE,NA,error,NA,NA,NA
+targets,pkg_box_top_imports,crew,out,"box::use top + tar_option_set(imports = ""dplyr"")",igraph::is_dag(graph) is not TRUE,NA,error,NA,NA,NA
+targets,pkg_imports_qualified,none,out,"tar_option_set(imports = ""dplyr"") + dplyr::mutate() (no box): is imports= itself usable?",igraph::is_dag(graph) is not TRUE,NA,error,NA,NA,NA
+targets,pkg_imports_qualified,crew,out,"tar_option_set(imports = ""dplyr"") + dplyr::mutate() (no box): is imports= itself usable?",igraph::is_dag(graph) is not TRUE,NA,error,NA,NA,NA
+targets,pkg_box_top_hook,none,out,box::use top + tarchetypes::tar_hook_before(hook = box::use(dplyr[mutate])),NA,"x=2,4,6",ok,NA,0,NA
+targets,pkg_box_top_hook,none,out_direct,box::use top + tarchetypes::tar_hook_before(hook = box::use(dplyr[mutate])),NA,"x=2,4,6",ok,NA,0,NA
+targets,pkg_box_top_hook,crew,out,box::use top + tarchetypes::tar_hook_before(hook = box::use(dplyr[mutate])),could not find function 'mutate',NA,error,NA,NA,NA
+targets,pkg_box_top_hook,crew,out_direct,box::use top + tarchetypes::tar_hook_before(hook = box::use(dplyr[mutate])),NA,"x=2,4,6",ok,NA,NA,NA
+targets,pkg_tar_source,none,out,tar_source() of R/functions.R that starts with box::use(dplyr[mutate]),NA,"x=2,4,6",ok,main process,0,TRUE
+targets,pkg_tar_source,crew,out,tar_source() of R/functions.R that starts with box::use(dplyr[mutate]),could not find function 'mutate',NA,error,crew,NA,NA
+targets,pkg_custom_envir,none,out,"box::use + fn inside a custom env, tar_option_set(envir = that env)",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_custom_envir,crew,out,"box::use + fn inside a custom env, tar_option_set(envir = that env)",NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_rprofile,none,out,box::use(dplyr[mutate]) in the project .Rprofile (runs in every R process),NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_rprofile,crew,out,box::use(dplyr[mutate]) in the project .Rprofile (runs in every R process),NA,"x=2,4,6",ok,crew,NA,NA
+targets,pkg_box_top_rargs,none,out,"box::use top + same line run on every crew worker via crew_controller_local(r_arguments = c(..., '-e', setup))",NA,"x=2,4,6",ok,main process,0,NA
+targets,pkg_box_top_rargs,crew,out,"box::use top + same line run on every crew worker via crew_controller_local(r_arguments = c(..., '-e', setup))",NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_alias_top_nopath,none,out,"box::use(mods/tfuns) at top, box.path NOT set","unable to load module ""mods/tfuns""; not found in ""/usr/local/lib/R/site-library/box/mod"", ""/tmp/Rtmp1TumLU""",NA,error,NA,NA,NA
+targets,mod_alias_top_nopath,crew,out,"box::use(mods/tfuns) at top, box.path NOT set","unable to load module ""mods/tfuns""; not found in ""/usr/local/lib/R/site-library/box/mod"", ""/tmp/RtmpVvCaoi""",NA,error,NA,NA,NA
+targets,mod_alias_top_nopath,in-process,out,"box::use(mods/tfuns) at top, box.path NOT set",NA,"x=2,4,6",ok,main process,NA,NA
+targets,mod_alias_top_relative,none,out,"box::use(./mods/tfuns) at top (relative), box.path NOT set","unable to load module ""./mods/tfuns""; not found in ""/tmp/RtmpC06GxU""",NA,error,NA,NA,NA
+targets,mod_alias_top_relative,crew,out,"box::use(./mods/tfuns) at top (relative), box.path NOT set","unable to load module ""./mods/tfuns""; not found in ""/tmp/RtmpXoRu7j""",NA,error,NA,NA,NA
+targets,mod_setscript_top,none,out,box::set_script_path() + box::use(./mods/tfuns) at top,NA,"x=2,4,6",ok,main process,0,NA
+targets,mod_setscript_top,crew,out,box::set_script_path() + box::use(./mods/tfuns) at top,NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_alias_top,none,out,"options(box.path = getwd()) + box::use(mods/tfuns) at top, tfuns$add_x()",NA,"x=2,4,6",ok,main process,0,TRUE
+targets,mod_alias_top,crew,out,"options(box.path = getwd()) + box::use(mods/tfuns) at top, tfuns$add_x()",NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_attach_top,none,out,options(box.path = getwd()) + box::use(mods/tfuns[add_x]) at top (attach style),NA,"x=2,4,6",ok,main process,0,FALSE
+targets,mod_attach_top,crew,out,options(box.path = getwd()) + box::use(mods/tfuns[add_x]) at top (attach style),could not find function 'add_x',NA,error,crew,NA,NA
+targets,mod_attach_top_rargs,none,out,as mod_attach_top + box.path and the same box::use run on every crew worker via r_arguments '-e',NA,"x=2,4,6",ok,main process,0,FALSE
+targets,mod_attach_top_rargs,crew,out,as mod_attach_top + box.path and the same box::use run on every crew worker via r_arguments '-e',NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_in_fn,none,out,"box::use(mods/tfuns) inside the function, box.path NOT set","unable to load module 'mods/tfuns'; not found in '/usr/local/lib/R/site-library/box/mod', '/tmp/RtmpcF4IwR'",NA,error,main process,NA,NA
+targets,mod_in_fn,crew,out,"box::use(mods/tfuns) inside the function, box.path NOT set",NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_in_fn_boxpath,none,out,options(box.path = getwd()) at top + box::use(mods/tfuns) inside the function,NA,"x=2,4,6",ok,main process,0,FALSE
+targets,mod_in_fn_boxpath,crew,out,options(box.path = getwd()) at top + box::use(mods/tfuns) inside the function,NA,"x=2,4,6",ok,crew,NA,NA
+targets,mod_in_fn_tracked,none,out,"as mod_in_fn_boxpath + module file declared as a format = ""file"" target",NA,"x=2,4,6",ok,main process,0,TRUE
+targets,mod_in_fn_tracked,crew,out,"as mod_in_fn_boxpath + module file declared as a format = ""file"" target",NA,"x=2,4,6",ok,crew,NA,NA
+targets,shared_option_in_fn,none,out,options(box.path = <shared>) at top + box::use(teamlib/shmod) inside fn,NA,"x=2,4,6",ok,main process,0,FALSE
+targets,shared_option_in_fn,crew,out,options(box.path = <shared>) at top + box::use(teamlib/shmod) inside fn,"unable to load module 'teamlib/shmod'; not found in '/usr/local/lib/R/site-library/box/mod', '/home/user/rr-tests/dbplyr-box-nse-callr-crew-targets/targets/shared_option_in_fn'",NA,error,crew,NA,NA
+targets,shared_envvar_in_fn,none,out,Sys.setenv(R_BOX_PATH = <shared>) at top + box::use(teamlib/shmod) inside fn,NA,"x=2,4,6",ok,main process,0,NA
+targets,shared_envvar_in_fn,crew,out,Sys.setenv(R_BOX_PATH = <shared>) at top + box::use(teamlib/shmod) inside fn,NA,"x=2,4,6",ok,crew,NA,NA
+targets,shared_rprofile_in_fn,none,out,options(box.path = <shared>) in project .Rprofile + box::use inside fn,NA,"x=2,4,6",ok,main process,0,NA
+targets,shared_rprofile_in_fn,crew,out,options(box.path = <shared>) in project .Rprofile + box::use inside fn,NA,"x=2,4,6",ok,crew,NA,NA
+targets,shared_alias_top,none,out,"options(box.path = <shared>) + box::use(teamlib/shmod) at top, shmod$add_x()",NA,"x=2,4,6",ok,main process,0,TRUE
+targets,shared_alias_top,crew,out,"options(box.path = <shared>) + box::use(teamlib/shmod) at top, shmod$add_x()",NA,"x=2,4,6",ok,crew,NA,NA
+targets,mechanism_view,none,out,box::use pkg + module at top; target reports globals / search path / envir where it runs,NA,"ran on: main process | globals: add_x, hdrs, prtctx, tfuns | search() has: mod:dplyr | envir: R_GlobalEnv",ok,NA,0,NA
+targets,mechanism_view,crew,out,box::use pkg + module at top; target reports globals / search path / envir where it runs,NA,"ran on: crew | globals: add_x, hdrs, prtctx, tfuns | search() has:  | envir: R_GlobalEnv",ok,NA,NA,NA
+timing,box::use(dplyr[mutate]) per call,-,NA,NA,NA,3827.5 microseconds,ok,NA,NA,NA
+timing,box::use(mods/tfuns) per call,-,NA,NA,NA,605.0 microseconds,ok,NA,NA,NA
+timing,dplyr::mutate lookup per call,-,NA,NA,NA,0.5 microseconds,ok,NA,NA,NA
