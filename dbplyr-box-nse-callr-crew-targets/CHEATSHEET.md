@@ -2,7 +2,7 @@
 
 Plain rules. Each rule links to the doc with the evidence (mostly script runs in this folder; a few come from reading docs or source, as marked). Safe to paste into an LLM prompt.
 
-Checked with: R 4.6.1, dplyr 1.2.1, dbplyr 2.6.0, box 1.2.3, callr 3.8.0, crew 1.3.3, mirai 2.7.3, targets 1.12.0. "In-memory" = dplyr on a data frame. "Database" = a dbplyr lazy table from `tbl(con, ...)`.
+Checked with: R 4.6.1, dplyr 1.2.1, dbplyr 2.6.0, box 1.2.3, callr 3.8.0, crew 1.3.3, mirai 2.7.3, targets 1.12.0, secretbase 1.3.1. "In-memory" = dplyr on a data frame. "Database" = a dbplyr lazy table from `tbl(con, ...)`.
 
 ## Column vs R variable (data masking)
 
@@ -31,6 +31,7 @@ Checked with: R 4.6.1, dplyr 1.2.1, dbplyr 2.6.0, box 1.2.3, callr 3.8.0, crew 1
 
 - box modules never see your global variables, and not even `stats`/`utils`. Import what you use: `box::use(stats[median])`, or `box::use(r/core[...])`. ([02](docs/02-box.md#what-a-box-module-can-see))
 - Never import base (`box::use(base[...])`): box 1.1.3+ errors, and base is always visible anyway. For an alias write `nch <- base::nchar`. ([07](docs/07-box-base.md))
+- `box::use()` inside a helper function imports into that helper's own call only, which is gone when it returns. To import into the function that calls the helper, write the helper as `function() eval.parent(quote(box::use(...)))`. ([08](docs/08-box-caching.md#what-to-do-ranked-each-tested-above))
 - tidyverse soft-deprecation warnings never show for code inside box modules, even with `lifecycle_verbosity = "warning"`. In tests, set `options(lifecycle_verbosity = "error")` to see them. ([02](docs/02-box.md#takeaways))
 
 ## callr, crew, targets
@@ -41,10 +42,11 @@ Checked with: R 4.6.1, dplyr 1.2.1, dbplyr 2.6.0, box 1.2.3, callr 3.8.0, crew 1
 - Tell box where modules are with `Sys.setenv(R_BOX_PATH = ...)` (inherited by child processes), not only `options(box.path = ...)` (not inherited). **If `R_BOX_PATH` is set, box ignores `options(box.path)`**, so list every module folder in it. ([03](docs/03-callr-crew.md#why-the-callr-surprises-happen))
 - crew workers are reused: packages attached and options set by one task stay for later tasks on the same worker (`reset_packages`, `reset_options` default `FALSE`). Even with `reset_options = TRUE`, a brand-new option such as `box.path` stays. ([03](docs/03-callr-crew.md#crew-state-between-tasks))
 - targets + crew: `box::use(pkg[fn])` at the top of `_targets.R` reaches only the main process, **not** crew workers. `library(pkg)` above the target list does reach workers (targets records `.packages()`). ([04](docs/04-targets.md#short-answer))
-- Recommended targets pattern: put functions in box modules, `box::use(mods/clean)` at the top of `_targets.R` (the module **object** is sent to workers), and call `clean$fn(data)` in commands. Also put `options(box.path = getwd())` at the top, because `tar_make()` runs `_targets.R` through callr and box can't find `mods/` otherwise. If `R_BOX_PATH` is set on your machine, add the project folder there instead. ([04](docs/04-targets.md#what-to-do-ranked-each-tested-above))
+- Recommended targets pattern (changed after issue #5): `tar_option_set(envir = new.env(parent = globalenv()))`, then `tar_source()`, with `box::use()` at the top of each `R/` file. box puts the imports in a parent of that environment, targets sends that environment to crew workers, and each function is fingerprinted by its code alone. Define nothing directly in `_targets.R`: targets doesn't track it and crew workers don't get it. For box-like per-file imports, use `source_scoped()` instead of `tar_source()`. If those files import your own box modules, also put `options(box.path = getwd())` at the top. ([08](docs/08-box-caching.md#what-to-do-ranked-each-tested-above), [04](docs/04-targets.md#second-trap-box-cannot-find-modules-from-_targetsr-even-without-crew))
 - `box::use()` inside each function also works everywhere. For modules, the main process still needs the module path, and you should add a `format = "file"` target for each module so targets notices edits. ([04](docs/04-targets.md#what-to-do-ranked-each-tested-above))
 - `tar_option_set(packages =)` loads packages on workers. It does nothing for box modules. `tar_option_set(imports =)` is not about loading, and breaks with dplyr. ([04](docs/04-targets.md#what-to-do-ranked-each-tested-above))
-- A module object is tracked as one block: editing any function in it re-runs every target that uses the module. ([04](docs/04-targets.md))
+- A box module object (`clean$fn()` in commands), or any list or environment of functions, is fingerprinted as one block, **including its source information**. Any edit, comment or spacing change, a newer file time (`git checkout`, a copy) or another project folder re-runs every target that uses it. Plain functions are fingerprinted by their code only. ([08](docs/08-box-caching.md#short-answer))
+- Don't run box-module pipelines with `tar_make(callr_function = NULL)`: box keeps serving the old module, and everything looks outdated anyway. ([08](docs/08-box-caching.md#in-one-r-session))
 
 ## SQL Server and Oracle (rendered and run on real engines unless marked; [05](docs/05-sql-server-oracle.md))
 

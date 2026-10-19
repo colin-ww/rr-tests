@@ -13,7 +13,7 @@ Short version:
 | 7 | tidyselect | "no deprecation warning on lazy tables" | – | **drop**: my test was wrong |
 
 - Items 1–4 have ready-to-paste drafts with the same numbers in [upstream-drafts.md](upstream-drafts.md). Item 5 has a small docs request instead (draft 5). Items 6 and 7 have no draft.
-- Also drafted: 5 SQL Server / Oracle problems (4 bugs, 1 likely bug) and 2 targets / box notes (drafts 6–12). They are explained the same way [at the end of this page](#also-drafted-sql-server--oracle-bugs-and-targets--box-notes).
+- Also drafted: 5 SQL Server / Oracle problems (4 bugs, 1 likely bug) and 3 targets / box notes (drafts 6–13; draft 13 is from issue #5). They are explained the same way [at the end of this page](#also-drafted-sql-server--oracle-bugs-and-targets--box-notes).
 - Old numbers (the upstream list in the first version, PR #2): item 1 was old 1. Item 2 is new (found while re-checking old 2). Item 3 was old 3. Items 4 and 5 were old 2, which had two parts. Item 6 was old 4. Item 7 was old 5.
 
 How I re-checked:
@@ -216,7 +216,7 @@ These three were in the first version. Re-checking showed they are wrong or not 
 
 ## Also drafted: SQL Server / Oracle bugs and targets / box notes
 
-Same questions, shorter. Evidence: [05-sql-server-oracle.md](05-sql-server-oracle.md#upstream-candidates-drafted-not-filed) (drafts 6–10) and [04-targets.md](04-targets.md) (drafts 11–12). Ready-to-paste text: drafts 6–12 in [upstream-drafts.md](upstream-drafts.md).
+Same questions, shorter. Evidence: [05-sql-server-oracle.md](05-sql-server-oracle.md#upstream-candidates-drafted-not-filed) (drafts 6–10) [04-targets.md](04-targets.md) (drafts 11–12) and [08-box-caching.md](08-box-caching.md) (draft 13). Ready-to-paste text: drafts 6–13 in [upstream-drafts.md](upstream-drafts.md).
 
 | draft | package | the problem in one line | silent? | verdict |
 |---|---|---|---|---|
@@ -227,6 +227,7 @@ Same questions, shorter. Evidence: [05-sql-server-oracle.md](05-sql-server-oracl
 | 10 | dbplyr | Oracle: an R date put into a query is sent as plain text | no: an error (it works only if your session's date format happens to match) | file, as a "likely bug" |
 | 11 | targets | `tar_option_set(imports = "dplyr")` breaks the whole pipeline | no | optional, low priority |
 | 12 | box | `box::use(mods/x)` at the top of `_targets.R` can't find the module under `tar_make()` | no | add a comment to the open issue klmr/box#199 |
+| 13 | targets | a box module (or any list of functions) is fingerprinted with its file's modification time, full path and every line, so targets re-runs too much | **yes, silent re-runs** | **file** (issue #5) |
 
 ### Draft 6. dbplyr: unions hang with `dialect_mssql()`
 
@@ -290,6 +291,16 @@ Same questions, shorter. Evidence: [05-sql-server-oracle.md](05-sql-server-oracl
 - **Scope:** **box + callr.** targets hits it because `tar_make()` uses callr. crew is not involved.
 - **Already reported:** klmr/box#199 "Callr module sourcing" (open since 2021). So add a comment there, not a new issue.
 - **Until it's fixed:** `options(box.path = getwd())` at the top of `_targets.R`. If `R_BOX_PATH` is set on your machine, add the project folder to it instead (see [04-targets.md](04-targets.md#second-trap-box-cannot-find-modules-from-_targetsr-even-without-crew)).
+
+### Draft 13. targets: box modules and lists of functions are fingerprinted with their source information
+
+- **What happens:** with `box::use(R/clean)` and `clean$add_x(raw)` in a command, every target that uses `clean` re-runs when the file gets a newer modification time (same text), a comment, or a spacing change, or when the project sits in another folder. An edit to one function re-runs the targets of all of them. With `tar_source()` and plain functions, none of that happens.
+- **Why it's a problem:** you pay for re-runs that change nothing, and you can't tell why. On a pipeline with slow targets, it looks as if caching doesn't work.
+- **What the docs say:** targets says it tracks functions and other global objects. Neither its help pages nor its code mention source references (I searched the package source for `srcref`), so nothing tells you that, for a list or environment of functions, the file's modification time and path count too. (The online manual was not searched.)
+- **What to expect:** the same fingerprint as for top-level functions (code only), or at least a note in the docs.
+- **Scope:** **targets only.** box makes it likely (box always keeps source information, and a module is an environment of functions), but a plain `list()` of functions loaded with `tar_source()` does exactly the same. crew is not involved.
+- **Already reported:** not as an issue. Discussion #1188 hit it ("always outdated" on a second machine, traced to box modules, cause not found). Discussion #936 is related (box functions not tracked).
+- **Until it's fixed:** `tar_option_set(envir = new.env(parent = globalenv()))` + `tar_source()`, with `box::use()` at the top of each file ([08-box-caching.md](08-box-caching.md#what-to-do-ranked-each-tested-above)).
 
 ---
 [← back to README](../README.md) · [ready-to-paste drafts](upstream-drafts.md) · [cheat sheet](../CHEATSHEET.md)
