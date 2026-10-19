@@ -23,6 +23,20 @@ test_that("a box module's hash changes with the file's modification time and fol
   expect_false(module_hashes(copy)[["module"]] == h1[["module"]])       # same text and time, other folder
 })
 
+test_that("a list of functions: tar_source() keeps source info (hash changes on touch), base::source() under callr does not", {
+  dir <- withr::local_tempfile(); dir.create(dir); f <- file.path(dir, "clean.R")
+  writeLines(c("clean <- list(", "  add_x = function(d) d", ")"), f)
+  hash <- \(how) callr::r(\(f, how) {
+    e <- new.env(); if (how == "source") source(f, local = e) else targets::tar_source(f, envir = e)
+    secretbase::siphash13(e$clean)
+  }, args = list(f, how), env = no_tt)
+  expect_false(callr::r(\() getOption("keep.source"), env = no_tt))   # the R that tar_make() starts is not interactive
+  Sys.setFileTime(f, as.POSIXct("2026-01-01", tz = "UTC")); h_src <- hash("source"); h_tar <- hash("tar_source")
+  Sys.setFileTime(f, as.POSIXct("2026-01-02", tz = "UTC"))
+  expect_equal(hash("source"), h_src)
+  expect_false(hash("tar_source") == h_tar)
+})
+
 test_that("running a module function once changes the module's hash (R byte-compiles it); not with the JIT off", {
   first_call <- \(jit) callr::r(\(dir, jit) {
     compiler::enableJIT(jit); setwd(dir); options(box.path = getwd()); box::use(R/clean)

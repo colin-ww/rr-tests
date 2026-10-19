@@ -51,6 +51,26 @@ change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x
 change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,n/a
 change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",project folder copied elsewhere (same file times),none,"out_x, out_y"
 change,src_list,"tar_source() of a plain list of functions (no box), clean$add_x(raw)",all changes undone,none,none
+run,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","tar_make(), no controller",NA,works
+run,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","tar_make(), crew",NA,works
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","nothing (2nd run, new R session)",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","file touched: same text, newer modification time",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",comment line added at the end of the file,none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",add_y changed (var1 * 2 -> var1 * 3),out_y,"out_x, out_y"
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)","import list changed (dplyr[mutate] -> [mutate, filter])",none or both,n/a
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",project folder copied elsewhere (same file times),none,none
+change,src_list_source,"base::source() of the same plain list of functions, clean$add_x(raw)",all changes undone,none,none
+run,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"tar_make(), no controller",NA,works
+run,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"tar_make(), crew",NA,works
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"nothing (2nd run, new R session)",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"file touched: same text, newer modification time",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),comment line added at the end of the file,none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"spaces only, in add_y (var1 * 2 -> var1*2)",none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),add_y changed (var1 * 2 -> var1 * 3),out_y,out_y
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),"import list changed (dplyr[mutate] -> [mutate, filter])",none or both,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),project folder copied elsewhere (same file times),none,none
+change,src_envir_source,tar_option_set(envir = new.env()) + base::source(local = that env),all changes undone,none,none
 run,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","tar_make(), no controller",NA,works
 run,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","tar_make(), crew",NA,works
 change,mod_object,"options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)","nothing (2nd run, new R session)",none,none
@@ -90,6 +110,9 @@ why,mod_object,NA,lines_are_whole_file,NA,TRUE
 why,mod_object,NA,touch_changes_module_hash,NA,TRUE
 why,mod_object,NA,touch_changes_fn_hash,NA,FALSE
 why,mod_object,NA,first_call_changes_module_hash,NA,TRUE
+why,mod_object,NA,keep_source_in_callr,NA,FALSE
+sitrep,mod_object,NA,file touched: tar_sitrep(),none,"out_x: depend = TRUE, out_y: depend = TRUE"
+sitrep,src_envir,NA,file touched: tar_sitrep(),none,"out_x: depend = FALSE, out_y: depend = FALSE"
 same_session,mod_object,NA,nothing edited,none,"outdated: out_x, out_y | new add_y in use: FALSE"
 same_session,mod_object,NA,"nothing edited, byte-compiler off (compiler::enableJIT(0))",none,outdated: none | new add_y in use: FALSE
 same_session,mod_object,NA,add_y edited,out_y,"outdated: out_x, out_y | new add_y in use: FALSE"

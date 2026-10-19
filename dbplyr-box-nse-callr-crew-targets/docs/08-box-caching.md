@@ -32,7 +32,7 @@ Your report: with `tar_source()`, targets re-runs exactly what changed. With `bo
 
 ## Results
 
-Each variant is a small project in `targets/cache_<variant>/` with the same two functions, `add_x()` and `add_y()`, in `R/clean.R`, and the targets `raw` → `out_x`, `out_y`. `Rscript 08-box-caching.R` reruns all of them (about 4 min).
+Each variant is a small project in `targets/cache_<variant>/` with the same two functions, `add_x()` and `add_y()`, in `R/clean.R`, and the targets `raw` → `out_x`, `out_y`. `Rscript 08-box-caching.R` reruns all of them (about 5 min).
 
 How to read the tables:
 - "no controller" = plain `tar_make()`. "crew" = `crew_controller_local(workers = 2)`.
@@ -47,6 +47,8 @@ How to read the tables:
 | `src_helper_naive` | `tar_source()`; each function calls `clean_imports()`, which is `function() box::use(...)` (your helper) | **fails: could not find function 'mutate'** | **fails: could not find function 'mutate'** |  |  |  |  |  |  |  |  |
 | `src_helper_fixed` | as above, but `clean_imports <- function() eval.parent(quote(box::use(...)))` | works | works | – | – | – | – | y | x, y | – | – |
 | `src_list` | `tar_source()` of `clean <- list(add_x = ..., add_y = ...)`, `clean$add_x(raw)` (no box) | works | works | – | **x, y** | **x, y** | **x, y** | **x, y** | n/a | **x, y** | – |
+| `src_list_source` | the same list, but `source("R/clean.R")` instead of `tar_source()` | works | works | – | – | – | – | **x, y** | n/a | – | – |
+| `src_envir_source` | `tar_option_set(envir = new.env())` + `source("R/clean.R", local = tar_option_get("envir"))` | works | works | – | – | – | – | y | – | – | – |
 | `mod_object` | `box::use(R/clean)`, `clean$add_x(raw)` | works | works | – | **x, y** | **x, y** | **x, y** | **x, y** | x, y | **x, y** | – |
 | `mod_attach` | `box::use(R/clean[add_x, add_y])`, `add_x(raw)` | works | **fails: could not find function 'add_x'** | – | – | – | – | **–** | – | – | – |
 | `mod_in_fn` | `box::use(R/clean)` inside wrapper functions in `_targets.R` | works | works | – | – | – | – | **–** | – | – | – |
@@ -54,9 +56,13 @@ How to read the tables:
 Notes:
 - `src_global` fails on crew because `box::use()` at the top of a file run in the global environment attaches to the search path, which crew workers don't get ([04](04-targets.md#what-actually-happens-from-the-source-code)). That's the issue's starting point.
 - `src_list` has no box at all. It shows the problem is in targets.
+- `src_list_source` and `src_envir_source` use `base::source()`: see [`base::source()` instead of `tar_source()`?](#basesource-instead-of-tar_source).
+- `tar_sitrep()` gives the same answer as `tar_outdated()`, with the reason `depend`. Checked for a touched file: `out_x` and `out_y` both `depend = TRUE` with `mod_object`, both `FALSE` with `src_envir`.
 - "imports changed" is `x, y` for the fixed helper, because the helper function itself changed (arguably the most correct answer), and for the module object, because the whole module counts as changed. With `tar_source()` and `envir`, adding an import re-runs nothing, as with `library()`.
 
 ### In one R session
+
+This is **box's own** module cache (`box::purge_cache()`), and it is separate from everything above. It only matters when targets runs inside **your** R session. `tar_make()`, `tar_outdated()`, `tar_sitrep()` and `tar_visnetwork()` all start a fresh R by default (`callr_function = callr::r`), where box has nothing cached and reads the file anew. So in normal use, what `tar_sitrep()` says depends only on targets' fingerprints.
 
 `tar_make(callr_function = NULL)`, then (maybe) an edit to `add_y`, then `tar_outdated(callr_function = NULL)` in the same session. "new add_y in use" = does the pipeline now see the edited function?
 
@@ -91,6 +97,19 @@ A pipeline with `tar_option_set(envir = ...)` + `tar_source()` and a target `out
 |---|---|---|---|
 | `src_envir` | own: 3 · other file's: 3 | own: 3 · other file's: 3 | x |
 | `src_scoped` | own: 3 · other file's: error: could not find function "n_distinct" | own: 3 · other file's: error: could not find function "n_distinct" | x |
+
+## `base::source()` instead of `tar_source()`?
+
+- **What `tar_source()` is:** for each `.R` file in a folder, `parse(file, keep.source = TRUE)`, then `eval()` into `tar_option_get("envir")` (targets `R/tar_source.R`, lines 61-75). That's all.
+- **`source()`** does the same for one file, but:
+  - it runs the code in the global environment unless you pass `local =`;
+  - it keeps source information only if `getOption("keep.source")` is `TRUE`. In the R that `tar_make()` starts, it is `FALSE`, because that R is not interactive (checked). In the RStudio console it is `TRUE`.
+- What that means for caching (rows `src_list_source` and `src_envir_source` above):
+  - **Plain functions:** no difference. targets ignores source information for functions anyway.
+  - **A list of functions:** `source()` is stable to a touch, a comment, spacing and another folder, because there is no source information to fingerprint. It is still one block: editing `add_y` re-runs both targets.
+  - **box modules:** no difference. box reads module files itself, always with `keep.source = TRUE`.
+- **crew and top-of-file `box::use()`:** what matters is the environment the file runs in, not `source()` vs `tar_source()`. `source(f, local = tar_option_get("envir"))` behaves exactly like the `envir` fix (tested, crew too). Plain `source(f)` runs in the global environment, so it should fail on crew like `src_global` (same mechanism; not run).
+- **Verdict: no reason to switch.** `tar_source()` is shorter (a whole folder, the right environment by default), and source information is what gives you file and line numbers in tracebacks. If you have lists of functions, turn them into top-level functions instead.
 
 ## What actually happens (from the source code)
 
@@ -174,8 +193,8 @@ Why `tar_option_set(envir = ...)` makes top-of-file `box::use()` work on crew:
    - A list or environment of functions as a "namespace" (`helpers$fn()`), even without box: same fragile fingerprint as a module.
 
 Rerun:
-- `Rscript 08-box-caching.R` writes `results/08-box-caching.csv` and regenerates `targets/cache_*/` (about 4 min).
-- Fast tests: `testthat::test_file("tests/testthat/test-box-caching.R")` (4 tests, 13 checks, about 7 s).
+- `Rscript 08-box-caching.R` writes `results/08-box-caching.csv` and regenerates `targets/cache_*/` (about 5 min).
+- Fast tests: `testthat::test_file("tests/testthat/test-box-caching.R")` (5 tests, 16 checks, about 9 s).
 - Add `RUN_TARGETS_TESTS=true` to also run real pipelines (one more test with 4 checks: a touch re-runs `mod_object` but not `src_scoped`; `src_scoped` works on crew, `src_global` doesn't; about 20 s).
 - Tested with targets 1.12.0, crew 1.3.3, mirai 2.7.3, box 1.2.3, callr 3.8.0, secretbase 1.3.1, R 4.6.1. Only local crew workers on Linux.
 

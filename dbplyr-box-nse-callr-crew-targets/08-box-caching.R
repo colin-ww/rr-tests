@@ -42,6 +42,9 @@ variants <- bind_rows(
   v("src_helper_fixed", "tar_source(); each function calls clean_imports() = function() eval.parent(quote(box::use(...)))",
     "tar_source()", HELPER_FIXED),
   v("src_list",         "tar_source() of a plain list of functions (no box), clean$add_x(raw)", "tar_source()", LIST, tg("clean$")),
+  v("src_list_source",  "base::source() of the same plain list of functions, clean$add_x(raw)", r"(source("R/clean.R"))", LIST, tg("clean$")),
+  v("src_envir_source", "tar_option_set(envir = new.env()) + base::source(local = that env)",
+    c(ENVIR, r"(source("R/clean.R", local = tar_option_get("envir")))")),
   v("mod_object",       "options(box.path = getwd()) + box::use(R/clean), clean$add_x(raw)",
     c("options(box.path = getwd())", "box::use(R/clean)"), tgts = tg("clean$")),
   v("mod_attach",       "options(box.path = getwd()) + box::use(R/clean[add_x, add_y]), add_x(raw)",
@@ -145,9 +148,20 @@ why <- callr::r(\(dir, T0) {
        timestamp_is_mtime = identical(as.numeric(sf$timestamp), as.numeric(file.mtime(f))),
        lines_are_whole_file = identical(sf$lines, readLines(f)),
        touch_changes_module_hash = h0[["module"]] != h1[["module"]], touch_changes_fn_hash = h0[["fn"]] != h1[["fn"]],
-       first_call_changes_module_hash = m0 != m1)
+       first_call_changes_module_hash = m0 != m1,
+       keep_source_in_callr = getOption("keep.source"))   # tar_make() runs _targets.R in a callr process like this one
 }, args = list(file.path(root, "cache_mod_object"), T0), env = c(callr::rcmd_safe_env(), TESTTHAT = "false", R_BOX_PATH = ""))
 res <- bind_rows(res, tibble(part = "why", variant = "mod_object", change = names(why), result = as.character(unlist(why))))
+
+# ---- tar_sitrep() after a touch: does it give the same answer, and which reason? --------------------------
+sitrep <- purrr::map_chr(c("mod_object", "src_envir"), \(variant) {
+  dir <- file.path(root, paste0("cache_", variant)); unlink(store(dir), recursive = TRUE)
+  rscript(dir, "targets::tar_make(reporter = 'silent')"); Sys.setFileTime(code_file(dir), T0 + 86400)
+  out <- rscript(dir, r"(s <- targets::tar_sitrep(names = tidyselect::starts_with("out")); cat(paste0(s$name, ": depend = ", s$depend), sep = ", "))")$stdout
+  Sys.setFileTime(code_file(dir), T0); unlink(store(dir), recursive = TRUE); out
+})
+res <- bind_rows(res, tibble(part = "sitrep", variant = c("mod_object", "src_envir"), change = "file touched: tar_sitrep()",
+  should_rerun = "none", result = sitrep))
 
 # ---- same R session: tar_make(callr_function = NULL), then tar_outdated(callr_function = NULL) ------
 # two effects: box keeps loaded modules for the whole session, and R byte-compiles a function the first time it runs,
