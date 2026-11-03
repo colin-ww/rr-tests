@@ -1,6 +1,6 @@
 # dbplyr × box × NSE × callr × crew × targets: what actually happens
 
-Answers issues #1, #3 and #5. Almost every claim comes from a script in this folder that you can re-run. The few that come from reading source code or docs, or from a one-off check by hand, say so. Each script writes a CSV to `results/`, and `docs/` explains the results in plain language.
+Answers issues #1, #3 and #5, plus a follow-up on #5 (part 9). Almost every claim comes from a script in this folder that you can re-run. The few that come from reading source code or docs, or from a one-off check by hand, say so. Each script writes a CSV to `results/`, and `docs/` explains the results in plain language.
 
 - **Start here:** [CHEATSHEET.md](CHEATSHEET.md). Plain rules, safe to paste into an LLM.
 - **Upstream issues:** [plain-language explanations](docs/upstream-issues.md) · [ready-to-paste drafts](docs/upstream-drafts.md). Nothing was filed.
@@ -30,6 +30,13 @@ Answers issues #1, #3 and #5. Almost every claim comes from a script in this fol
 | Is box's own cache (`box::purge_cache()`) part of this? | **No, separate.** It only matters when targets runs in your session (`callr_function = NULL`). `tar_make()`, `tar_outdated()` and `tar_sitrep()` start a fresh R by default, where box reads the file anew. `tar_sitrep()` agrees with `tar_outdated()`: after a touch, `depend = TRUE` for both targets with a module object, `FALSE` with the `envir` fix. | [08](docs/08-box-caching.md#in-one-r-session) |
 | `base::source()` vs `tar_source()`? | Same for functions and for box modules. `tar_source()` = `parse(keep.source = TRUE)` + `eval()` into the pipeline env, for a whole folder. `source()` keeps no source info in the R that `tar_make()` starts, so a **list** of functions stops reacting to touches and comments (still one block). For crew, what matters is `local = tar_option_get("envir")`. No reason to switch. | [08](docs/08-box-caching.md#basesource-instead-of-tar_source) |
 | Packages: `box::use()` inside each function for crew, via a helper like `ingest_boxuse()`? Better way? | Your helper as written **fails** even without crew: box imports into the helper's own call, which is gone when it returns. `eval.parent(quote(box::use(...)))` fixes it (works on crew, caches right). **Better:** the `envir` line above, which makes top-of-file `box::use()` reach crew workers, so no helper is needed. | [08](docs/08-box-caching.md#what-to-do-ranked-each-tested-above) |
+
+## Follow-up to issue #5: a fresh process per target (part 9)
+
+| you asked | short answer | details |
+|---|---|---|
+| If each target ran in its own fresh process, would per-file `box::use()` imports become real, not just documentation? | **No.** crew `tasks_max = 1` really gives each target its own process, but each gets what targets ships: the pooled imports, or `packages =` / `library()`. Results match one reused worker, row for row. **Scoping** is what makes imports real: `source_scoped()` or `box::use()` inside each function make a file that forgot an import fail, even without crew. | [09](docs/09-imports-fresh-process.md#short-answer) |
+| Which package import styles work with / without crew? | All of `envir`, `source_scoped()`, `packages =`, `library()` and `box::use()` in functions work everywhere. Plain `tar_source()` fails on crew for **attached** names (`pkg[fn]`), but **aliases** (`box::use(stringr)`, `stringr$fn()`) work: they're global objects, which targets ships. Caching was right in all 21 projects. `source_scoped()` with `keep.source = TRUE` caches the same as `FALSE` and keeps file/line numbers. | [09](docs/09-imports-fresh-process.md#results) |
 
 ## Answers to issue #3, one by one
 
@@ -76,9 +83,10 @@ An adversarial re-check in fresh R processes found these. All are fixed in the d
 | `06-escape-hatches.R` + `R/check_ambiguity.R` → [docs/06-escape-hatches.md](docs/06-escape-hatches.md) | every option dbplyr reads, `sql()`/`.sql$`/`local()`/`remote()`/`sql_glue2()`, how dbplyr decides "R or SQL", the ambiguity helper | ~15 s |
 | `07-box-base.R` → [docs/07-box-base.md](docs/07-box-base.md) | `box::use(base)` root cause, 123 cases (118 in a fresh R process), tested fix | ~1 min |
 | `08-box-caching.R` + `targets/cache_<variant>/` → [docs/08-box-caching.md](docs/08-box-caching.md) | issue #5: what targets re-runs after 8 kinds of change, for 11 ways of loading functions (`tar_source()`, `source()`, box module, attach, helpers, `envir`, one scope per file); `tar_sitrep()`; one-session effects; two-file scope | ~5 min |
+| `09-imports-fresh-process.R` + `targets/imp_<load>_<ctrl>/` → [docs/09-imports-fresh-process.md](docs/09-imports-fresh-process.md) | 7 ways of loading code + packages × {no controller, 1 reused crew worker, a fresh process per target}: do they work, are per-file imports real, does caching stay right | ~3 min |
 | `R/harness.R` | `probe()`: captures value / SQL / warnings / messages / error and the stage it failed at | – |
 | `build-report.R` → `results/tables.md`, `results/versions.md` | all per-case tables for parts 1–3, 6, 7 + versions | ~3 s |
-| `tests/testthat/` | 28 tests: 89 expectations pass, 3 tests skip. With `RUN_TARGETS_TESTS=true` (runs real pipelines, ~75 s): 102 expectations, no skips | ~15 s |
+| `tests/testthat/` | 31 tests: 91 expectations pass, 4 tests skip. With `RUN_TARGETS_TESTS=true` (runs real pipelines, ~75 s): 106 expectations, no skips | ~15 s |
 
 Run everything from this folder:
 

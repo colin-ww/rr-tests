@@ -169,6 +169,7 @@ Why `tar_option_set(envir = ...)` makes top-of-file `box::use()` work on crew:
    ```
 
    - Pros: as 1, plus each file sees only its own imports. Functions in other files are still callable, and tracked across files (tested: editing `times2()` in `R/util.R` re-ran only the target whose function calls it).
+   - `keep.source = TRUE` works just as well (tested in [09](09-imports-fresh-process.md#short-answer): same caching, with and without crew) and keeps file and line numbers in tracebacks.
    - Cons: as 1, minus the shared imports. Every top-level object of a file is visible to the pipeline: there is no `#' @export`.
 3. **Module objects, `clean$fn()`** (`mod_object`, the first choice in [04](04-targets.md#what-to-do-ranked-each-tested-above), now demoted). Keep it if you really want `mod$fn()` and true modules, and your targets are cheap to re-run. Use small modules, never `callr_function = NULL`, and expect a full re-run after a clone, a move or a `git checkout` that touches the file.
 4. **Your helper, fixed** (`src_helper_fixed`), with plain `tar_source()`:
