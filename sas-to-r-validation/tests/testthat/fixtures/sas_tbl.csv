@@ -1,0 +1,5 @@
+grp,n,pct,sum_income,note
+a,100,50,1000,same as R (other formatting)
+b,100,25.84,2000,
+c,3000,26.6,3100,
+e,4,,,only in SAS: n bucket from 0 - 4

@@ -1,0 +1,6 @@
+obj,verdict,rows_r,rows_sas,rows_unmatched,rows_pct,units_unmatched,unmatched_pct,n_0,n_1_100,n_101_1000,n_gt_1000,pct_ok,pct_minor,pct_RED,text,na,known_diff,not_compared
+frame$by_prov,minor,5,5,0,0,0,0,4,1,0,0,4,1,0,0,0,,
+frame$by_prov_mail,minor,4,3,1,25,2,0.04,2,2,0,0,0,0,0,0,0,"R doesn't use a SAS-only lookup, so a few tiny combos differ",
+income$by_grp,RED,3,2,1,33.333333333333336,1500,21.428571428571427,1,0,0,2,1,1,0,0,0,,
+info,minor,4,4,0,0,0,,2,0,0,0,1,0,0,1,0,,
+r_only,no SAS,1,,,,,,,,,,,,,,,,

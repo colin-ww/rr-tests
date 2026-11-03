@@ -1,0 +1,16 @@
+key,col,kind,bucket,status
+grp=a,n,n,0,ok
+grp=a,pct,pct,,ok
+grp=a,sum_income,amt,,ok
+grp=b,n,n,1-100,minor
+grp=b,pct,pct,,ok
+grp=b,sum_income,amt,,ok
+grp=c,n,n,>1000,RED
+grp=c,pct,pct,,RED
+grp=c,sum_income,amt,,RED
+grp=d,n,n,1-100,only in r
+grp=d,pct,pct,,only in r
+grp=d,sum_income,amt,,only in r
+grp=e,n,n,1-100,only in sas
+grp=e,pct,pct,,only in sas
+grp=e,sum_income,amt,,only in sas

@@ -1,0 +1,5 @@
+grp,n,pct,sum_income,note
+a,100,50.0,1000.00,same as SAS
+b,103,25.8,2000.00,n off by 3 (minor); pct 25.8 vs SAS 25.84 is within the rounding of "25.8"
+c,5000,25.0,3000.50,n off by 2000 (RED); pct off by 1.6 pp (RED); sum off by 3.2% (RED)
+d,7,1.2,,only in R: n bucket from 7 - 0
