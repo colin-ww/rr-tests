@@ -1,6 +1,6 @@
 # dbplyr × box × NSE × callr × crew × targets: what actually happens
 
-Answers issues #1, #3 and #5, plus a follow-up on #5 (part 9). Almost every claim comes from a script in this folder that you can re-run. The few that come from reading source code or docs, or from a one-off check by hand, say so. Each script writes a CSV to `results/`, and `docs/` explains the results in plain language.
+Answers issues #1, #3 and #5, plus follow-ups on #5 (parts 9 and 10). Almost every claim comes from a script in this folder that you can re-run. The few that come from reading source code or docs, or from a one-off check by hand, say so. Each script writes a CSV to `results/`, and `docs/` explains the results in plain language.
 
 - **Start here:** [CHEATSHEET.md](CHEATSHEET.md). Plain rules, safe to paste into an LLM.
 - **Upstream issues:** [plain-language explanations](docs/upstream-issues.md) · [ready-to-paste drafts](docs/upstream-drafts.md). Nothing was filed.
@@ -37,6 +37,14 @@ Answers issues #1, #3 and #5, plus a follow-up on #5 (part 9). Almost every clai
 |---|---|---|
 | If each target ran in its own fresh process, would per-file `box::use()` imports become real, not just documentation? | **No.** crew `tasks_max = 1` really gives each target its own process, but each gets what targets ships: the pooled imports, or `packages =` / `library()`. Results match one reused worker, row for row. **Scoping** is what makes imports real: `source_scoped()` or `box::use()` inside each function make a file that forgot an import fail, even without crew. | [09](docs/09-imports-fresh-process.md#short-answer) |
 | Which package import styles work with / without crew? | All of `envir`, `source_scoped()`, `packages =`, `library()` and `box::use()` in functions work everywhere. Plain `tar_source()` fails on crew for **attached** names (`pkg[fn]`), but **aliases** (`box::use(stringr)`, `stringr$fn()`) work: they're global objects, which targets ships. Caching was right in all 21 projects. `source_scoped()` with `keep.source = TRUE` caches the same as `FALSE` and keeps file/line numbers. | [09](docs/09-imports-fresh-process.md#results) |
+
+## Ranked recommendation: own code + package imports (part 10)
+
+| you asked | short answer | details |
+|---|---|---|
+| Ranked recommendation for loading own code and importing packages? | **1:** `envir` line + `source_scoped()` + `box::use()` at the top of each file. **2:** `envir` line + `tar_source()` (one line, imports pooled). **3:** `box::use()` inside each function. **4:** `packages =` / `library()`. **5:** plain `tar_source()` (fails on crew for attached names). **Never:** module objects, attaching your own modules. | [10](docs/10-recommendation.md#ranked-own-code--packages-together) |
+| Are real per-file imports worth it? `source_scoped()` or `box::use()` in each function? | Worth it, but not urgent: do it together with turning crew on. `source_scoped()` is the more reasonable of the two: it keeps one import block per file, with no line in every function. `box::use()` in functions only wins where an import change must re-run targets. | [10](docs/10-recommendation.md#are-real-per-file-imports-worth-it) |
+| Downsides of `source_scoped()`? How does it work, what goes where? | New catches: a forgotten `dplyr[filter]` silently finds `stats::filter()` (`object 'v' not found`). Anything attached in the session (`library()` in `_targets.R`, `.Rprofile`, tests) is visible to every file. Switching loaders re-runs nothing. `tar_load_globals()` needs `attach()`. The helper is in `R/source_scoped.R`. | [10](docs/10-recommendation.md#downsides-of-source_scoped) |
 
 ## Answers to issue #3, one by one
 
@@ -84,9 +92,10 @@ An adversarial re-check in fresh R processes found these. All are fixed in the d
 | `07-box-base.R` → [docs/07-box-base.md](docs/07-box-base.md) | `box::use(base)` root cause, 123 cases (118 in a fresh R process), tested fix | ~1 min |
 | `08-box-caching.R` + `targets/cache_<variant>/` → [docs/08-box-caching.md](docs/08-box-caching.md) | issue #5: what targets re-runs after 8 kinds of change, for 11 ways of loading functions (`tar_source()`, `source()`, box module, attach, helpers, `envir`, one scope per file); `tar_sitrep()`; one-session effects; two-file scope | ~5 min |
 | `09-imports-fresh-process.R` + `targets/imp_<load>_<ctrl>/` → [docs/09-imports-fresh-process.md](docs/09-imports-fresh-process.md) | 7 ways of loading code + packages × {no controller, 1 reused crew worker, a fresh process per target}: do they work, are per-file imports real, does caching stay right | ~3 min |
+| `10-source-scoped-checks.R` + `R/source_scoped.R` → [docs/10-recommendation.md](docs/10-recommendation.md) | the ranked recommendation (parts 4, 8, 9 together) + 3 checks: forgotten imports that base R also has, switching loaders, `tar_load_globals()` | ~30 s |
 | `R/harness.R` | `probe()`: captures value / SQL / warnings / messages / error and the stage it failed at | – |
 | `build-report.R` → `results/tables.md`, `results/versions.md` | all per-case tables for parts 1–3, 6, 7 + versions | ~3 s |
-| `tests/testthat/` | 31 tests: 91 expectations pass, 4 tests skip. With `RUN_TARGETS_TESTS=true` (runs real pipelines, ~75 s): 106 expectations, no skips | ~15 s |
+| `tests/testthat/` | 34 tests: 97 expectations pass, 4 tests skip. With `RUN_TARGETS_TESTS=true` (runs real pipelines, ~75 s): 112 expectations, no skips | ~15 s |
 
 Run everything from this folder:
 
