@@ -1,6 +1,6 @@
 # Ranked recommendation: loading your own code and package imports (targets + box + crew)
 
-This doc pulls together [04](04-targets.md), [08](08-box-caching.md) and [09](09-imports-fresh-process.md), plus 3 new checks (`10-source-scoped-checks.R`, `tests/testthat/test-source-scoped.R`).
+This doc pulls together [04](04-targets.md), [08](08-box-caching.md) and [09](09-imports-fresh-process.md), plus 4 new checks (`10-source-scoped-checks.R`, `tests/testthat/test-source-scoped.R`).
 
 The questions, from the sc-nts-frame session:
 - What's the ranked recommendation for loading your own code and for importing packages?
@@ -25,6 +25,7 @@ There are two separate questions, and they're easy to mix up:
 - **New catches: "real" isn't strict for names base R already has, or for anything attached in the session.**
   - Say a file forgets `dplyr[filter]`. It gets `stats::filter()` instead, with a confusing error (`object 'v' not found`), not `could not find function`. The same goes for `lag()`.
   - Anything `library()`d in `_targets.R`, `.Rprofile` or the test session is visible to every file.
+- **With the `envir` line, your own functions aren't in the global env.** Top-level code in `_targets.R` (eg a startup check) can't call them by name. Use the environment that `source_scoped()` returns: `e <- source_scoped(files); e$check_env()`.
 - **Switching between `tar_source()`, the `envir` line and `source_scoped()` re-runs nothing** (all 6 directions checked).
 
 
@@ -96,7 +97,7 @@ function body
 
 | where | what |
 |---|---|
-| `_targets.R` | `library(targets)` (and crew); `tar_option_set(envir = new.env(parent = globalenv()))` **before** loading; `source("R/source_scoped.R")`; `source_scoped(files)`; other `tar_option_set()`; the targets list. Commands call your functions by name and packages as `pkg::fn()`. |
+| `_targets.R` | `library(targets)` (and crew); `tar_option_set(envir = new.env(parent = globalenv()))` **before** loading; `source("R/source_scoped.R")`; `source_scoped(files)`; other `tar_option_set()`; the targets list. Commands call your functions by name and packages as `pkg::fn()`: with `source_scoped()`, the files' imports aren't visible to commands. Top-level code that calls your own functions (eg a startup check) needs `e <- source_scoped(files)`, then `e$fn()`. |
 | each `R/` file | At the top, `box::use()` for **every** package it uses (`dplyr[...]`, `stringr`, …). Then functions and constants. Call other files' functions by name, without importing them. |
 | `R/source_scoped.R` | The helper itself. It's harmless if it's also in the list of files to source. |
 | imports of your **own** box modules from `R/` files | Not needed: other files' functions are already in `envir`. If you keep them (eg so a file still works when sourced alone), they load a second, separate copy. They also need `options(box.path = ...)` ([04](04-targets.md#second-trap-box-cannot-find-modules-from-_targetsr-even-without-crew)). |
@@ -112,15 +113,19 @@ function body
 - **Only as strict as the session's search path.** Anything attached is visible to every file: `library()` in `_targets.R` or `.Rprofile`, or in your console. In the fresh R that `tar_make()` starts, that's usually just targets (and crew). Found when the fast test passed alone but failed in the full suite, where another test file had run `library(dplyr)`. So run tests in a fresh R, with no `library(dplyr)` in the helpers.
 - **No private helpers.** Every top-level object in a file is visible to the pipeline and to other files. There's no `#' @export`. If two files define the same name, the file loaded later silently wins, the same as with `tar_source()`.
 - **Changing only the import block re-runs nothing**, the same as with `library()` or `tar_source()` ([08](08-box-caching.md#results)). If an import change changes results (eg which package's `filter()`), run `tar_invalidate()` on the affected targets.
-- **The `envir` catches apply** (also to rank 2): nothing used by commands may live directly in `_targets.R`, and `tar_load_globals()` needs the `attach()`.
+- **The `envir` catches apply** (also to rank 2):
+  - nothing used by commands may live directly in `_targets.R`;
+  - top-level code in `_targets.R` can't call your functions by name (`object 'fa' not found`); use `e$fn()`;
+  - `tar_load_globals()` needs the `attach()`.
 
 
 ## Switching an existing pipeline (rank 5 → 1)
 
 1. In `_targets.R`:
    - add the `envir` line before anything is loaded;
-   - replace `tar_source(files)` with `source("R/source_scoped.R")` + `source_scoped(files)`;
-   - make commands use `pkg::fn()` for anything imported in `_targets.R` itself.
+   - replace `tar_source(files)` with `source("R/source_scoped.R")` + `e <- source_scoped(files)`;
+   - top-level calls to your own functions become `e$fn()`;
+   - commands use `pkg::fn()` for every package function (attached names, eg from `_targets.R`'s own `box::use()`, aren't visible), or call your own functions.
 2. Run `tar_make()`.
    - Nothing should re-run (checked in 10, all 6 directions).
    - Each new error is an import a file uses but doesn't declare. `could not find function` is the plain case. The odd ones (`object 'v' not found`) are usually `stats` names. Add the import to that file.
@@ -130,7 +135,7 @@ function body
 
 ## Results of part 10
 
-`Rscript 10-source-scoped-checks.R` (~30 s) writes `results/10-source-scoped-checks.csv` and regenerates `targets/scoped_checks/`.
+`Rscript 10-source-scoped-checks.R` (~40 s) writes `results/10-source-scoped-checks.csv` and regenerates `targets/scoped_checks/`.
 
 | check | case | result |
 |---|---|---|
@@ -140,6 +145,9 @@ function body
 | switch loaders on a built pipeline | `tar_source` ↔ `envir` ↔ `source_scoped`, all 6 directions | nothing re-runs |
 | `tar_load_globals()`, `source_scoped()` | `fa()` visible in the session | no |
 | | after `attach(tar_option_get("envir"), name = "pipeline")` | yes |
+| own function at the top level of `_targets.R` | `tar_source()` | works |
+| | `envir` line + `tar_source()`, or `source_scoped()` | error: object 'fa' not found |
+| | `e <- source_scoped()`, then `e$fa` | works |
 
 - Fast tests: `testthat::test_file("tests/testthat/test-source-scoped.R")` (3 tests, 6 checks, no pipeline).
 - Tested with targets 1.12.0, box 1.2.3, R 4.6.1.

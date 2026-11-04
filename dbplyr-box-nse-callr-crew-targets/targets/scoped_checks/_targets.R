@@ -1,5 +1,4 @@
 library(targets)
-tar_option_set(error = "continue")
 tar_option_set(envir = new.env(parent = globalenv()))
 # Like targets::tar_source(), but each file gets its own scope: its top-of-file box::use() imports are seen by that file only.
 # The file's functions and other objects still all land in `envir`, where targets fingerprints them one by one
@@ -13,5 +12,6 @@ source_scoped <- function(files = list.files("R", "\\.[rR]$", full.names = TRUE,
   }
   invisible(envir)
 }
-source_scoped()
+e <- source_scoped()
+stopifnot(is.function(e$fa))
 list(tar_target(raw, data.frame(v = 1:3)), tar_target(out_a, fa(raw)), tar_target(out_b, fb(raw)), tar_target(out_c, fc(raw)))

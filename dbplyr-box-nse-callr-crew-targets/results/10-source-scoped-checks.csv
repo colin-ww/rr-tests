@@ -10,3 +10,7 @@ switch loaders: re-runs?,source_scoped -> tar_source,nothing
 switch loaders: re-runs?,source_scoped -> envir,nothing
 "tar_load_globals(), source_scoped()",fa() visible in the session,no
 "tar_load_globals(), source_scoped()","after attach(tar_option_get(""envir""), name = ""pipeline"")",yes
+own function at top level of _targets.R,tar_source,works
+own function at top level of _targets.R,envir,error: object 'fa' not found
+own function at top level of _targets.R,source_scoped,error: object 'fa' not found
+own function at top level of _targets.R,"source_scoped, e$fa",works

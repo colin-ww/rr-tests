@@ -2,6 +2,7 @@
 #   1. source_scoped(): what a file that forgot an import gets, when base R has a function of the same name (stats::filter)
 #   2. switching loaders (tar_source() <-> envir line <-> source_scoped()) on a built pipeline: does anything re-run?
 #   3. tar_load_globals() with source_scoped(): where do the functions land, and does attach() fix it?
+#   4. calling your own function at the top level of _targets.R (eg a startup check), for each loader
 # One mini project in targets/scoped_checks/. Writes results/10-source-scoped-checks.csv. ~30 s.
 source("R/harness.R")                 # save_results()
 suppressPackageStartupMessages(library(targets))
@@ -57,7 +58,22 @@ res3 <- tibble::tibble(
   result = ifelse(g, "yes", "no")
 )
 
+## 4. own function called at the top level of _targets.R (load time, main process)
+TOP <- list(
+  tar_source                 = c(LOADS$tar_source,    "stopifnot(is.function(fa))"),
+  envir                      = c(LOADS$envir,         "stopifnot(is.function(fa))"),
+  source_scoped              = c(LOADS$source_scoped, "stopifnot(is.function(fa))"),
+  `source_scoped, e$fa`      = c(head(LOADS$source_scoped, -1), "e <- source_scoped()", "stopifnot(is.function(e$fa))")
+)
+res4 <- dplyr::bind_rows(lapply(names(TOP), \(v) {
+  writeLines(c("library(targets)", TOP[[v]], TARGETS), "_targets.R")
+  r <- tryCatch({ tar_make(reporter = "silent"); "works" }, error = \(e) {
+    m <- regmatches(conditionMessage(e), regexpr("object '[^']+' not found|could not find function \"[^\"]+\"", conditionMessage(e)))
+    paste("error:", if (length(m)) m else "other") })
+  tibble::tibble(check = "own function at top level of _targets.R", case = v, result = r)
+}))
+
 setwd(old)
-res <- dplyr::bind_rows(res1, res2, res3)
+res <- dplyr::bind_rows(res1, res2, res3, res4)
 save_results(res, "10-source-scoped-checks.csv")
 print(res, n = Inf, width = Inf)
