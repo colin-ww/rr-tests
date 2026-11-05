@@ -1,0 +1,22 @@
+load,ctrl,a,b_no_import,c_alias,processes,rerun_2nd,touched,comment,fc_edited,undone
+global,none,works,works,works,1,-,-,-,c,-
+global,reuse,error: could not find function 'mutate',error: could not find function 'mutate',works,1,-,-,-,c,-
+global,fresh,error: could not find function 'mutate',error: could not find function 'mutate',works,1,-,-,-,c,-
+envir,none,works,works,works,1,-,-,-,c,-
+envir,reuse,works,works,works,1,-,-,-,c,-
+envir,fresh,works,works,works,3,-,-,-,c,-
+scoped,none,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+scoped,reuse,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+scoped,fresh,works,error: could not find function 'mutate',works,2,-,-,-,c,-
+scoped_src,none,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+scoped_src,reuse,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+scoped_src,fresh,works,error: could not find function 'mutate',works,2,-,-,-,c,-
+packages,none,works,works,works,1,-,-,-,c,-
+packages,reuse,works,works,works,1,-,-,-,c,-
+packages,fresh,works,works,works,3,-,-,-,c,-
+library,none,works,works,works,1,-,-,-,c,-
+library,reuse,works,works,works,1,-,-,-,c,-
+library,fresh,works,works,works,3,-,-,-,c,-
+in_function,none,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+in_function,reuse,works,error: could not find function 'mutate',works,1,-,-,-,c,-
+in_function,fresh,works,error: could not find function 'mutate',works,2,-,-,-,c,-
