@@ -1,0 +1,91 @@
+tool,column,class,zeros_kept
+utils::type.convert,sin_like,integer,FALSE
+utils::type.convert,type_code,integer,FALSE
+utils::type.convert,prov,integer,NA
+utils::type.convert,count,integer,NA
+utils::type.convert,amount,numeric,NA
+utils::type.convert,flag,character,NA
+utils::type.convert,ref_date,character,NA
+utils::type.convert,status,character,NA
+utils::type.convert,big_id,numeric,NA
+utils::type.convert,weight,integer,NA
+readr::type_convert,sin_like,character,TRUE
+readr::type_convert,type_code,character,TRUE
+readr::type_convert,prov,numeric,NA
+readr::type_convert,count,numeric,NA
+readr::type_convert,amount,numeric,NA
+readr::type_convert,flag,character,NA
+readr::type_convert,ref_date,Date,NA
+readr::type_convert,status,character,NA
+readr::type_convert,big_id,numeric,NA
+readr::type_convert,weight,numeric,NA
+hablar::retype,sin_like,integer,FALSE
+hablar::retype,type_code,integer,FALSE
+hablar::retype,prov,integer,NA
+hablar::retype,count,integer,NA
+hablar::retype,amount,numeric,NA
+hablar::retype,flag,character,NA
+hablar::retype,ref_date,Date,NA
+hablar::retype,status,character,NA
+hablar::retype,big_id,numeric,NA
+hablar::retype,weight,integer,NA
+readr::read_csv,sin_like,character,TRUE
+readr::read_csv,type_code,character,TRUE
+readr::read_csv,prov,numeric,NA
+readr::read_csv,count,numeric,NA
+readr::read_csv,amount,numeric,NA
+readr::read_csv,flag,character,NA
+readr::read_csv,ref_date,Date,NA
+readr::read_csv,status,character,NA
+readr::read_csv,big_id,numeric,NA
+readr::read_csv,weight,numeric,NA
+data.table::fread,sin_like,integer,FALSE
+data.table::fread,type_code,integer,FALSE
+data.table::fread,prov,integer,NA
+data.table::fread,count,integer,NA
+data.table::fread,amount,numeric,NA
+data.table::fread,flag,character,NA
+data.table::fread,ref_date,IDate,NA
+data.table::fread,status,character,NA
+data.table::fread,big_id,integer64,NA
+data.table::fread,weight,integer,NA
+arrow::read_csv_arrow,sin_like,integer,FALSE
+arrow::read_csv_arrow,type_code,integer,FALSE
+arrow::read_csv_arrow,prov,integer,NA
+arrow::read_csv_arrow,count,integer,NA
+arrow::read_csv_arrow,amount,numeric,NA
+arrow::read_csv_arrow,flag,character,NA
+arrow::read_csv_arrow,ref_date,Date,NA
+arrow::read_csv_arrow,status,character,NA
+arrow::read_csv_arrow,big_id,integer64,NA
+arrow::read_csv_arrow,weight,integer,NA
+duckplyr::read_csv_duckdb,sin_like,character,TRUE
+duckplyr::read_csv_duckdb,type_code,character,TRUE
+duckplyr::read_csv_duckdb,prov,numeric,NA
+duckplyr::read_csv_duckdb,count,numeric,NA
+duckplyr::read_csv_duckdb,amount,numeric,NA
+duckplyr::read_csv_duckdb,flag,character,NA
+duckplyr::read_csv_duckdb,ref_date,Date,NA
+duckplyr::read_csv_duckdb,status,character,NA
+duckplyr::read_csv_duckdb,big_id,numeric,NA
+duckplyr::read_csv_duckdb,weight,numeric,NA
+polars read_csv,sin_like,numeric,FALSE
+polars read_csv,type_code,numeric,FALSE
+polars read_csv,prov,numeric,NA
+polars read_csv,count,numeric,NA
+polars read_csv,amount,numeric,NA
+polars read_csv,flag,character,NA
+polars read_csv,ref_date,character,NA
+polars read_csv,status,character,NA
+polars read_csv,big_id,numeric,NA
+polars read_csv,weight,numeric,NA
+suggest_types (report),sin_like,character,TRUE
+suggest_types (report),type_code,factor,TRUE
+suggest_types (report),prov,integer,NA
+suggest_types (report),count,integer,NA
+suggest_types (report),amount,double,NA
+suggest_types (report),flag,logical,NA
+suggest_types (report),ref_date,Date,NA
+suggest_types (report),status,factor,NA
+suggest_types (report),big_id,double,NA
+suggest_types (report),weight,integer,NA

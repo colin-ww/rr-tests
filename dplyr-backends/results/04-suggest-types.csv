@@ -1,0 +1,13 @@
+column,class,pct_na,n_distinct,mb_now,suggest,mb_after,why,code
+big_id,character,0,1000000,72,double,8,"all digits, too big for integer (an id? keep chr if it is never used as a number)",big_id = as.numeric(big_id)
+amount,character,0,432177,32.2,double,8,decimal numbers,amount = as.numeric(amount)
+type_code,character,0,13,8,factor,4,"digits WITH leading zeros: a code, not a number (as.integer would drop the zeros)",type_code = factor(type_code)
+prov,character,0,5,8,integer,4,"all digits, fits integer",prov = as.integer(prov)
+count,character,0,13,8,integer,4,"all digits, fits integer",count = as.integer(count)
+flag,character,0,2,8,logical,4,2 values: Y/N-like,"flag = toupper(flag) %in% c('Y', 'YES', 'T', 'TRUE', '1')"
+status,character,0,3,8,factor,4,3 distinct values,status = factor(status)
+weight,character,0,500,8,integer,4,"all digits, fits integer",weight = as.integer(weight)
+whole_dbl,numeric,0,500,8,integer,4,whole numbers within integer range,whole_dbl = as.integer(whole_dbl)
+dummy_dbl,numeric,0,2,8,logical,4,only 0/1,dummy_dbl = dummy_dbl == 1
+ref_date,character,0,2000,8.1,Date,8,all YYYY-MM-DD,ref_date = as.Date(ref_date)
+sin_like,character,0,1000000,72,character,72,"digits WITH leading zeros: a code, not a number (as.integer would drop the zeros)",NA

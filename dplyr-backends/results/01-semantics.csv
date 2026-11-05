@@ -1,0 +1,325 @@
+case,backend,outcome,same_values,same_types,vals,types,value,msgs,what
+join_na_key,dplyr,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,dplyr,error,TRUE,TRUE,ERROR,ERROR,ERROR: Can't join `x$k` with `y$k` due to incompatible types. i `x$k` is a <character>. i `y$k` is a <integer>.,,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,dplyr,ok,TRUE,TRUE,"1,2,3 | 10,NA,NA","numeric,integer","k<numeric>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,dplyr,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,dplyr,error,TRUE,TRUE,ERROR,ERROR,ERROR: Each row in `x` must match at most 1 row in `y`. i Row 1 of `x` matches multiple rows in `y`.,,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,dplyr,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,dplyr,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,dplyr,warning,TRUE,TRUE,"2,-Inf",numeric,"g<numeric>=1,2; m<numeric>= 2,-Inf","W: There was 1 warning in `summarise()`. i In argument: `m = max(x, na.rm = TRUE)`. i In group 2: `g = 2`. Caused by warning in `max()`: ! no non-missing arguments to max; returning -Inf","max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,dplyr,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,dplyr,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,dplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,dplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,dplyr,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,dplyr,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,dplyr,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,dplyr,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,dplyr,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,dplyr,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,dplyr,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,dplyr,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,dplyr,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,dplyr,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,dplyr,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,dplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,dplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,dplyr,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,dplyr,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,dtplyr,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,dtplyr,error,TRUE,TRUE,ERROR,ERROR,ERROR: Incompatible join types: x.k (integer) and i.k (character),,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,dtplyr,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,dtplyr,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,dtplyr,ok,FALSE,FALSE,"1,2,3",integer,"k<character>=a,a,b; x<integer>=1,1,2; y<integer>=1,2,3",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,dtplyr,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,dtplyr,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,dtplyr,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,dtplyr,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,dtplyr,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,dtplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,dtplyr,warning,FALSE,FALSE,"2,2,2,2,2",integer,"g<numeric>=1,1,1,2,2; m<integer>=2,2,2,2,2; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",W: Group 2 column 'm': 2.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (target vector),"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,dtplyr,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,dtplyr,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,dtplyr,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,dtplyr,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,dtplyr,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,dtplyr,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,dtplyr,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,dtplyr,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,dtplyr,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,dtplyr,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,dtplyr,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,dtplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,dtplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,dtplyr,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,dtplyr,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,tidytable,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,tidytable,error,TRUE,TRUE,ERROR,ERROR,ERROR: Incompatible join types: x.k (integer) and i.k (character),,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,tidytable,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,tidytable,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,tidytable,ok,FALSE,FALSE,"1,2,3",integer,"k<character>=a,a,b; x<integer>=1,1,2; y<integer>=1,2,3",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,tidytable,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,tidytable,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,tidytable,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,tidytable,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,tidytable,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,tidytable,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,tidytable,warning,FALSE,FALSE,"2,2,2,2,2",integer,"g<numeric>=1,1,1,2,2; m<integer>=2,2,2,2,2; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",W: Group 2 column 'm': 2.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (target vector),"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,tidytable,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,tidytable,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,tidytable,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,tidytable,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,tidytable,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,tidytable,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,tidytable,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,tidytable,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,tidytable,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,tidytable,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,tidytable,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,tidytable,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,tidytable,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,tidytable,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,tidytable,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,duckplyr,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,duckplyr,error,TRUE,TRUE,ERROR,ERROR,ERROR: Can't join `x$k` with `y$k` due to incompatible types. i `x$k` is a <character>. i `y$k` is a <integer>.,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `f()`: ! Can't join `x$k` with `y$k` due to incompatible types. i `x$k` is a <character>. i `y$k` is a <integer>.","left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,duckplyr,ok,TRUE,TRUE,"1,2,3 | 10,NA,NA","numeric,integer","k<numeric>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,duckplyr,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,duckplyr,ok,FALSE,FALSE,"1,2,3",integer,"k<character>=a,a,b; x<integer>=1,1,2; y<integer>=1,2,3",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,duckplyr,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.","sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,duckplyr,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.","mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,duckplyr,warning,TRUE,TRUE,"2,-Inf",numeric,"g<numeric>=1,2; m<numeric>= 2,-Inf","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`. || W: There was 1 warning in `summarise()`. i In argument: `m = max(x, na.rm = TRUE)`. i In group 2: `g = 2`. Caused by warning in `max()`: ! no non-missing arguments to max; returning -Inf","max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,duckplyr,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,duckplyr,ok,TRUE,FALSE,2,numeric,n<numeric>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,duckplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.",grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,duckplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.","same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,duckplyr,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,duckplyr,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,duckplyr,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,duckplyr,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,duckplyr,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `` `%/%`() ``.",-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,duckplyr,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ","M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`.","paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,duckplyr,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2","M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`.","if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,duckplyr,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`.",as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,duckplyr,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,duckplyr,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,duckplyr,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,duckplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,duckplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.","group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,duckplyr,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4","M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i Try `summarise(.by = ...)` or `mutate(.by = ...)` instead of `group_by()` and `ungroup()`.","summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,duckplyr,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,dbplyr_duckdb,ok,FALSE,TRUE,"10,NA",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,NA",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,dbplyr_duckdb,ok,FALSE,FALSE,"10,10,20",integer,"k<character>=01,1 ,2 ; x<integer>=2,1,3; y<integer>=10,10,20",,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,dbplyr_duckdb,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,dbplyr_duckdb,ok,TRUE,FALSE,"a,b | NA,10","factor,integer","k<factor>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,dbplyr_duckdb,error,TRUE,TRUE,ERROR,ERROR,"ERROR: `relationship = ""many-to-one""` isn't supported on database backends. i It must be ""many-to-many"" or `NULL` instead.",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,dbplyr_duckdb,ok,FALSE,FALSE,"3,NA",numeric,"g<numeric>=1,2; s<numeric>= 3,NA",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,dbplyr_duckdb,ok,FALSE,TRUE,"1.5,NA",numeric,"g<numeric>=1,2; m<numeric>=1.5, NA",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,dbplyr_duckdb,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,dbplyr_duckdb,warning,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,dbplyr_duckdb,ok,TRUE,FALSE,2,numeric,n<numeric>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,dbplyr_duckdb,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,dbplyr_duckdb,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<numeric>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,dbplyr_duckdb,ok,TRUE,FALSE,"2,1",numeric,"g<numeric>=1,2; n<numeric>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,dbplyr_duckdb,ok,TRUE,FALSE,"2,1",numeric,"g<character>=a,b; n<numeric>=2,1",,count(g): type of n
+round_half,dbplyr_duckdb,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,dbplyr_duckdb,ok,FALSE,TRUE,"-3,3",integer,"i<integer>=-3, 3; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,dbplyr_duckdb,ok,TRUE,FALSE,-4 | 2,"numeric,numeric",q<numeric>=-4; r<numeric>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,dbplyr_duckdb,ok,FALSE,TRUE,"a,ab",character,"p<character>=a ,ab; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,dbplyr_duckdb,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,dbplyr_duckdb,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,dbplyr_duckdb,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,dbplyr_duckdb,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,dbplyr_duckdb,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,dbplyr_duckdb,warning,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",W: ORDER BY is ignored in subqueries without LIMIT i Do you need to move arrange() later in the pipeline or use window_order() instead?,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,dbplyr_duckdb,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,dbplyr_duckdb,ok,TRUE,FALSE,"z,a | 2,4","factor,numeric","f<factor>=z,a; s<numeric>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,dbplyr_duckdb,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,arrow,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,arrow,error,TRUE,TRUE,ERROR,ERROR,ERROR: Invalid: Incompatible data types for corresponding join field keys: FieldRef.Name(k) of type string and FieldRef.Name(k) of type int32,,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,arrow,error,FALSE,FALSE,ERROR,ERROR,ERROR: Invalid: Incompatible data types for corresponding join field keys: FieldRef.Name(k) of type int32 and FieldRef.Name(k) of type double,,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,arrow,ok,TRUE,FALSE,"a,b | NA,10","factor,integer","k<factor>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,arrow,ok,FALSE,FALSE,"1,2,3",integer,"k<character>=a,a,b; x<integer>=1,1,2; y<integer>=1,2,3",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,arrow,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,arrow,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,arrow,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,arrow,ok,TRUE,FALSE,4e+09,integer64,s<integer64>=4000000000,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,arrow,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,arrow,warning,FALSE,TRUE,"2,2,2,2,2",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2,2,2,2,2; x<integer>=1,2,3,2,3",W: median() currently returns an approximate median in Arrow This warning is displayed once per session.,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,arrow,ok,FALSE,TRUE,"2,2,2,2,2",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2,2,2,2,2; n_ok<numeric>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,arrow,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,arrow,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,arrow,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,arrow,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,arrow,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,arrow,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,arrow,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,arrow,error,FALSE,FALSE,ERROR,ERROR,ERROR: NotImplemented: Unsupported cast from duration[s] to double using function cast_double,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,arrow,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,arrow,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,arrow,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,arrow,ok,FALSE,TRUE,"1,9",numeric,"g<numeric>=1,2; v<numeric>=1,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,arrow,fallback,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",W: In v == max(v): i Expression not supported in filter() in Arrow > Pulling data into R,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,arrow,ok,FALSE,TRUE,"a,z | 4,2","factor,integer","f<factor>=a,z; s<integer>=4,2",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,arrow,error,FALSE,FALSE,ERROR,ERROR,ERROR: filter expressions must be either an expression or a list of expressions,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,tidypolars,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,tidypolars,error,TRUE,TRUE,ERROR,ERROR,"ERROR: Evaluation failed in `$collect()`. Caused by error: ! datatypes of join keys don't match - `k`: str on left does not match `k`: i32 on right (and no other type was available to cast to) Resolved plan until failure: ---> FAILED HERE RESOLVING 'select' <--- DF [""k"", ""y""]; PROJECT */2 COLUMNS This error occurred with the following context stack: [1] 'join' [2] 'select'",,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,tidypolars,error,FALSE,FALSE,ERROR,ERROR,"ERROR: Evaluation failed in `$collect()`. Caused by error: ! datatypes of join keys don't match - `k`: i32 on left does not match `k`: f64 on right (and no other type was available to cast to) Resolved plan until failure: ---> FAILED HERE RESOLVING 'select' <--- DF [""k"", ""y""]; PROJECT */2 COLUMNS This error occurred with the following context stack: [1] 'join' [2] 'select'",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,tidypolars,error,FALSE,FALSE,ERROR,ERROR,"ERROR: Evaluation failed in `$collect()`. Caused by error: ! datatypes of join keys don't match - `k`: cat on left does not match `k`: str on right (and no other type was available to cast to) Resolved plan until failure: ---> FAILED HERE RESOLVING 'select' <--- DF [""k"", ""y""]; PROJECT */2 COLUMNS This error occurred with the following context stack: [1] 'join' [2] 'select'",,left_join: factor key vs chr key
+join_dup_check,tidypolars,error,TRUE,TRUE,ERROR,ERROR,ERROR: Evaluation failed in `$collect()`. Caused by error: ! join keys did not fulfill m:1 validation,,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,tidypolars,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,tidypolars,ok,FALSE,TRUE,"1.5,NA",numeric,"g<numeric>=1,2; m<numeric>=1.5, NA",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,tidypolars,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,tidypolars,ok,FALSE,FALSE,-294967296,integer,s<integer>=-294967296,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,tidypolars,ok,TRUE,FALSE,2,numeric,n<numeric>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,tidypolars,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,tidypolars,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<numeric>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,tidypolars,ok,TRUE,FALSE,"2,1",numeric,"g<numeric>=1,2; n<numeric>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,tidypolars,ok,TRUE,FALSE,"2,1",numeric,"g<character>=a,b; n<numeric>=2,1",,count(g): type of n
+round_half,tidypolars,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,tidypolars,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,tidypolars,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,tidypolars,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,tidypolars,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,tidypolars,ok,FALSE,TRUE,8.64e+11,numeric,d<Date>=2026-01-01; days<numeric>=8.64e+11,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,tidypolars,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,tidypolars,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,tidypolars,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,tidypolars,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,tidypolars,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,tidypolars,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,tidypolars,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,fastplyr,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,fastplyr,ok,FALSE,FALSE,"NA,10,20",integer,"k<character>=01,1 ,2 ; x<integer>=2,1,3; y<integer>=NA,10,20",,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,fastplyr,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,fastplyr,ok,TRUE,FALSE,"a,b | NA,10","factor,integer","k<factor>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,fastplyr,error,TRUE,TRUE,ERROR,ERROR,"ERROR: unused argument (relationship = ""many-to-one"")",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,fastplyr,ok,FALSE,TRUE,"3,NA",integer,"g<numeric>=1,2; s<integer>= 3,NA",M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run `fastplyr::fastplyr_disable_optimisations()` to disable optimisations globally Run `fastplyr::fastplyr_disable_informative_msgs()` to disable this and other informative messages This message is displayed once per session.,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,fastplyr,ok,FALSE,TRUE,"1.5,NA",numeric,"g<numeric>=1,2; m<numeric>=1.5, NA",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,fastplyr,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,fastplyr,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,fastplyr,ok,FALSE,TRUE,1,integer,n<integer>=1,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,fastplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,fastplyr,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",M: Expressions will be evaluated in separate masks Normal exprs: n_ok Optimised exprs: m To always evaluate everything in the same mask run `fastplyr::fastplyr_disable_optimisations()` It is advised to run these exprs in separate e.g. `f_mutate/f_reframe/f_summarise` statements Run `fastplyr::fastplyr_disable_informative_msgs()` to disable this and other informative messages,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,fastplyr,ok,TRUE,TRUE,"2,1",integer,"g<numeric>=1,2; n<integer>=2,1",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,fastplyr,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,fastplyr,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,fastplyr,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,fastplyr,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,fastplyr,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,fastplyr,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,fastplyr,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,fastplyr,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,fastplyr,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,fastplyr,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,fastplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",M: Expressions will be evaluated in separate masks Normal exprs: desc(v) Optimised exprs: g To always evaluate everything in the same mask run `fastplyr::fastplyr_disable_optimisations()` It is advised to run these exprs in separate e.g. `f_mutate/f_reframe/f_summarise` statements Run `fastplyr::fastplyr_disable_informative_msgs()` to disable this and other informative messages,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,fastplyr,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,fastplyr,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,fastplyr,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,collapse_mask,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,collapse_mask,error,TRUE,TRUE,ERROR,ERROR,ERROR: Can't join `x$k` with `y$k` due to incompatible types. i `x$k` is a <character>. i `y$k` is a <integer>.,,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,collapse_mask,ok,TRUE,TRUE,"1,2,3 | 10,NA,NA","numeric,integer","k<numeric>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,collapse_mask,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,collapse_mask,error,TRUE,TRUE,ERROR,ERROR,ERROR: Each row in `x` must match at most 1 row in `y`. i Row 1 of `x` matches multiple rows in `y`.,,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,collapse_mask,ok,FALSE,TRUE,"3,NA",integer,"g<numeric>=1,2; s<integer>= 3,NA",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,collapse_mask,ok,FALSE,TRUE,"1.5,NA",numeric,"g<numeric>=1,2; m<numeric>=1.5, NA",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,collapse_mask,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,collapse_mask,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,collapse_mask,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,collapse_mask,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,collapse_mask,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,collapse_mask,error,FALSE,FALSE,ERROR,ERROR,ERROR: if data is not grouped need to call n() on a column,,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,collapse_mask,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; N<integer>=2,1",,count(g): type of n
+round_half,collapse_mask,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,collapse_mask,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,collapse_mask,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,collapse_mask,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,collapse_mask,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,collapse_mask,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,collapse_mask,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,collapse_mask,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,collapse_mask,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,collapse_mask,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,collapse_mask,error,FALSE,FALSE,ERROR,ERROR,ERROR: `.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame.,,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,collapse_mask,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,collapse_mask,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,poorman,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,poorman,error,TRUE,TRUE,ERROR,ERROR,ERROR: Can't join on `x$k` x `y$k` because of incompatible types. i `x$k` is of type <character>. i `y$k` is of type <integer>.,,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,poorman,ok,TRUE,TRUE,"1,2,3 | 10,NA,NA","numeric,integer","k<numeric>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,poorman,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,poorman,ok,FALSE,FALSE,"1,2,3",integer,"k<character>=a,a,b; x<integer>=1,1,2; y<integer>=1,2,3",,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,poorman,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,poorman,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,poorman,warning,TRUE,TRUE,"2,-Inf",numeric,"g<numeric>=1,2; m<numeric>= 2,-Inf",W: no non-missing arguments to max; returning -Inf,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,poorman,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,poorman,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,poorman,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,poorman,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,poorman,ok,FALSE,TRUE,"3,3,3",integer,".by<numeric>=1,1,2; n<integer>=3,3,3",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,poorman,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; n<integer>=2,1",,count(g): type of n
+round_half,poorman,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,poorman,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,poorman,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,poorman,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,poorman,error,FALSE,FALSE,ERROR,ERROR,ERROR: `case_when()` requires formula inputs.,,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,poorman,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,poorman,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,poorman,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,poorman,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,poorman,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,poorman,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,poorman,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,poorman,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,data.table,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,data.table,error,TRUE,TRUE,ERROR,ERROR,ERROR: Incompatible join types: x.k (integer) and i.k (character),,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,data.table,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,data.table,ok,TRUE,TRUE,"a,b | NA,10","character,integer","k<character>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,data.table,error,TRUE,TRUE,ERROR,ERROR,ERROR: mult='error' and multiple matches during merge,,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,data.table,ok,TRUE,TRUE,"3,0",integer,"g<numeric>=1,2; s<integer>=3,0",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,data.table,ok,TRUE,TRUE,"1.5,NaN",numeric,"g<numeric>=1,2; m<numeric>=1.5,NaN",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,data.table,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,data.table,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,data.table,ok,TRUE,TRUE,2,integer,n<integer>=2,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,data.table,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,data.table,warning,FALSE,FALSE,"2,2,2,2,2",integer,"g<numeric>=1,1,1,2,2; m<integer>=2,2,2,2,2; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",W: Group 2 column 'm': 2.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (target vector),"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,data.table,n/a,NA,NA,NA,NA,NA,NA,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,data.table,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; N<integer>=2,1",,count(g): type of n
+round_half,data.table,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,data.table,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,data.table,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,data.table,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,data.table,ok,TRUE,TRUE,"NA,y | n,y","character,character","c<character>=n,y; i<character>=NA,y ; x<numeric>=NA, 2",,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,data.table,ok,TRUE,TRUE,10,numeric,d<Date>=2026-01-01; days<numeric>=10,,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,data.table,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,data.table,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,data.table,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,data.table,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,data.table,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,data.table,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,data.table,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
+join_na_key,collapse,ok,TRUE,TRUE,"10,20",integer,"k<character>=a ,NA; x<integer>=1,2; y<integer>=10,20",,left_join: NA key in both tables. Does NA match NA? (dplyr default na_matches = 'na'; SAS merge: yes)
+join_chr_int,collapse,ok,FALSE,FALSE,"NA,10,20",integer,"k<character>=01,1 ,2 ; x<integer>=2,1,3; y<integer>=NA,10,20",,"left_join: chr key ('1','01','2') vs int key (1, 2). Error, warning, or auto-cast?"
+join_int_dbl,collapse,ok,TRUE,FALSE,"1,2,3 | 10,NA,NA","integer,integer","k<integer>=1,2,3; x<integer>=1,2,3; y<integer>=10,NA,NA",,"left_join: int key vs double key (1, 2.5)"
+join_fct_chr,collapse,ok,TRUE,FALSE,"a,b | NA,10","factor,integer","k<factor>=a,b; x<integer>=1,2; y<integer>=NA,10",,left_join: factor key vs chr key
+join_dup_check,collapse,error,TRUE,TRUE,ERROR,ERROR,ERROR: Join is not m:1: y (y) is not unique on the join columns,,left_join with relationship = 'many-to-one' when y has a duplicated key (like SAS 'repeats of BY values')
+sum_all_na,collapse,ok,FALSE,TRUE,"3,NA",integer,"g<numeric>=1,2; s<integer>= 3,NA",,"sum(x, na.rm = TRUE) for a group where x is all NA (R: 0; SQL SUM: NULL)"
+mean_all_na,collapse,ok,FALSE,TRUE,"1.5,NA",numeric,"g<numeric>=1,2; m<numeric>=1.5, NA",,"mean(x, na.rm = TRUE) for an all-NA group (R: NaN)"
+max_all_na,collapse,ok,FALSE,TRUE,"2,NA",numeric,"g<numeric>=1,2; m<numeric>= 2,NA",,"max(x, na.rm = TRUE) for an all-NA group (R: -Inf + warning)"
+sum_int_overflow,collapse,ok,TRUE,TRUE,4e+09,numeric,s<numeric>=4e+09,,sum() of an int column past 2^31 (R: NA + warning)
+n_distinct_na,collapse,ok,FALSE,TRUE,1,integer,n<integer>=1,,"n_distinct(c('a', 'a', NA)) (dplyr counts NA: 2; SQL COUNT(DISTINCT): 1)"
+median_int_grouped,collapse,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; x<integer>=1,2,3,2,3",,grouped mutate median() of an INT column; group 2 has an even count (median 2.5)
+median_int_gforce_off,collapse,ok,TRUE,TRUE,"2.0,2.0,2.0,2.5,2.5",numeric,"g<numeric>=1,1,1,2,2; m<numeric>=2.0,2.0,2.0,2.5,2.5; n_ok<integer>=3,3,3,2,2; x<integer>=1,2,3,2,3",,"same, plus a 2nd expression in that grouped mutate (n_ok = sum(!is.na(x))): data.table GForce off, the 1st group's type wins"
+by_ignored,collapse,ok,FALSE,TRUE,"3,3,3",integer,".by<numeric>=1,1,2; n<integer>=3,3,3",,"summarise(n = n(), .by = g): 2 groups expected. Is .by understood or silently made a column?"
+count_type,collapse,ok,TRUE,TRUE,"2,1",integer,"g<character>=a,b; N<integer>=2,1",,count(g): type of n
+round_half,collapse,ok,TRUE,TRUE,"0,0,2,2",numeric,"r<numeric>=0,0,2,2; x<numeric>=-0.5, 0.5, 1.5, 2.5",,"round(c(0.5, 1.5, 2.5, -0.5)) (R/IEC: half to even 0 2 2 0; SAS/SQL: half away 1 2 3 -1)"
+as_integer,collapse,ok,TRUE,TRUE,"-2,2",integer,"i<integer>=-2, 2; x<numeric>=-2.7, 2.7",,"as.integer(c(2.7, -2.7)) (R: truncates 2 -2; SQL CAST: rounds 3 -3)"
+int_div_mod,collapse,ok,TRUE,TRUE,-4 | 2,"integer,integer",q<integer>=-4; r<integer>=2; x<integer>=-7,,-7 %/% 2 and -7 %% 3 (R: -4 and 2; SQL: -3 and -1)
+paste_na,collapse,ok,TRUE,TRUE,"aNA,ab",character,"p<character>=aNA,ab ; s<character>=NA,b ",,"paste0('a', NA) (R: 'aNA'; SQL ||: NULL; CONCAT: 'a')"
+if_else_na,collapse,n/a,NA,NA,NA,NA,NA,NA,"if_else(x > 1, 'y', 'n') and case_when(x > 1 ~ 'y', .default = 'n') where x is NA (dplyr: NA and 'n')"
+date_diff,collapse,n/a,NA,NA,NA,NA,NA,NA,as.numeric(as.Date('2026-01-11') - d) (days: 10)
+sort_na,collapse,ok,TRUE,TRUE,"1,2,NA",numeric,"x<numeric>= 1, 2,NA",,arrange(x) with an NA (dplyr: NA last)
+sort_na_desc,collapse,ok,TRUE,TRUE,"2,1,NA",numeric,"x<numeric>= 2, 1,NA",,arrange(desc(x)) with an NA (dplyr: NA last too; SQL DESC: depends on the engine)
+sort_strings,collapse,ok,TRUE,TRUE,"A,B,_,a,b",character,"s<character>=A,B,_,a,b",,arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same)
+first_dot,collapse,ok,TRUE,TRUE,"3,9",numeric,"g<numeric>=1,2; v<numeric>=3,9",,"SAS first.: arrange(g, desc(v)) |> distinct(g, .keep_all = TRUE) -> v = 3, 9"
+grouped_filter,collapse,n/a,NA,NA,NA,NA,NA,NA,"group_by(g) |> filter(v == max(v)) -> v = 3, 9"
+factor_groups,collapse,ok,TRUE,TRUE,"z,a | 2,4","factor,integer","f<factor>=z,a; s<integer>=2,4",,"summarise by a factor with levels c('z', 'a'): type and order of the group column"
+roundtrip_types,collapse,ok,TRUE,TRUE,1.5 | 2026-01-01 | lvl | 1 | TRUE | a | 2026-01-01 12:00:00,"numeric,Date,factor,integer,logical,character,POSIXct",d<numeric>=1.5; dt<Date>=2026-01-01; f<factor>=lvl; i<integer>=1; l<logical>=TRUE; s<character>=a; ts<POSIXct>=2026-01-01 12:00:00,,column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct
