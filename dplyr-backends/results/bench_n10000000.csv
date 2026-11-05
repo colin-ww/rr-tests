@@ -1,0 +1,80 @@
+backend,kind,style,task,n,threads,status,convert_s,secs,secs_all,base_mb,peak_mb,rows,same_values,type_diffs,fallbacks,note
+dplyr,same dplyr code,.by,join,1e+07,4,ok,0.0248441696166992,12.5054841041565,14.027;12.505,871,4012,10000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,join,1e+07,4,ok,1.45519399642944,10.3791348934174,13.143;10.379,876,4441,10000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,join,1e+07,4,ok,4.09005808830261,12.942409992218,12.942;18.266,925,4601,10000000,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,join,1e+07,4,ok,1.70766019821167,22.090372800827,22.09,902,4227,10000000,TRUE,NA,0,NA
+tidytable,same dplyr code,.by,join,1e+07,4,ok,0.0195400714874268,13.4191517829895,13.419;13.484,878,4273,10000000,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,join,1e+07,4,ok,0.019477367401123,1.70362401008606,1.704;1.79,874,1659,10000000,TRUE,NA,0,NA
+collapse_mask,same dplyr code,group_by,join,1e+07,4,ok,0.0194330215454102,12.2964913845062,14.002;12.296,877,3977,10000000,TRUE,NA,0,NA
+data.table,native rewrite,native,join,1e+07,4,ok,1.44418454170227,9.95783257484436,13.289;9.958,877,4408,10000000,TRUE,NA,0,NA
+collapse,native rewrite,native,join,1e+07,4,ok,0.0201492309570312,1.45329070091248,1.532;1.453,876,1605,10000000,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,join,1e+07,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,summarise_many,1e+07,4,ok,0.0119936466217041,189.284236907959,189.284,594,7223,8201432,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,summarise_many,1e+07,4,ok,0.270228862762451,27.8711729049683,27.871,599,1570,8201432,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,summarise_many,1e+07,4,ok,1.40120196342468,2.5435528755188,2.691;2.544,648,2792,8201432,TRUE,n_pers: integer->numeric; n_inc: integer->numeric; inc_sum: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,summarise_many,1e+07,4,ok,0.483316659927368,1.21485996246338,1.373;1.215,625,2733,8201432,TRUE,n_pers: integer->numeric; n_inc: integer->numeric,0,NA
+tidytable,same dplyr code,.by,summarise_many,1e+07,4,ok,0.0131676197052002,27.6721081733704,27.672,601,1222,8201432,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,summarise_many,1e+07,4,ok,0.0127279758453369,49.6178874969482,49.618,597,3643,8201432,TRUE,NA,0,"M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_inc Optimised exprs: n_pers, inc_sum, and age_max To always evaluate everything in the same m"
+collapse_mask,same dplyr code,group_by,summarise_many,1e+07,4,ok,0.0127761363983154,2.81690430641174,2.817;2.837,600,1406,8201432,TRUE,NA,0,NA
+data.table,native rewrite,native,summarise_many,1e+07,4,ok,0.270800352096558,3.04477262496948,3.563;3.045,599,2557,8201432,TRUE,NA,0,NA
+collapse,native rewrite,native,summarise_many,1e+07,4,ok,0.0129516124725342,2.50086212158203,2.509;2.501,599,1336,8201432,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,summarise_many,1e+07,4,ok,0.0116667747497559,2.48097038269043,2.481;2.622,599,1336,8201432,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,median_many,1e+07,4,ok,0.0168054103851318,21.3754336833954,21.375,785,1885,10000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,median_many,1e+07,4,ok,0.548523187637329,18.5231704711914,19.744;18.523,790,2807,10000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,median_many,1e+07,4,ok,3.16554999351501,4.57500076293945,4.584;4.575,839,2423,10000000,TRUE,n_pc: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,median_many,1e+07,4,ok,1.52798628807068,6.2467029094696,6.247;6.431,815,2719,10000000,TRUE,n_pc: integer->numeric,0,NA
+tidytable,same dplyr code,.by,median_many,1e+07,4,ok,0.0164270401000977,17.4029467105865,18.071;17.403,791,1775,10000000,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,median_many,1e+07,4,ok,0.012188196182251,4.42421317100525,5.81;4.424,788,1806,10000000,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_pc Optimised exprs: med_pc To always evaluate everything in the same mask run `fastplyr::fast
+collapse_mask,same dplyr code,group_by,median_many,1e+07,4,ok,0.0155496597290039,1.34747767448425,1.369;1.347,791,1448,10000000,TRUE,NA,0,NA
+data.table,native rewrite,native,median_many,1e+07,4,ok,0.558454275131226,3.58191823959351,5.247;3.582,790,2868,10000000,TRUE,NA,0,NA
+collapse,native rewrite,native,median_many,1e+07,4,ok,0.0149157047271729,1.09990310668945,1.13;1.1,789,1377,10000000,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,median_many,1e+07,4,ok,0.0127215385437012,1.65441918373108,1.654;1.747,789,1445,10000000,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,first_per_id,1e+07,4,ok,0.0137355327606201,83.3270485401154,83.327,594,5042,8201432,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,first_per_id,1e+07,4,ok,0.291705131530762,24.9484798908234,24.948,599,1926,8201432,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,first_per_id,1e+07,4,ok,1.35890579223633,4.57028555870056,4.57;4.64,648,1872,8201432,TRUE,NA,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,first_per_id,1e+07,4,ok,0.407032251358032,3.30948185920715,3.484;3.309,625,2203,8201432,TRUE,NA,0,NA
+tidytable,same dplyr code,.by,first_per_id,1e+07,4,ok,0.0131504535675049,26.5498518943787,26.55,601,1483,8201432,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,first_per_id,1e+07,4,ok,0.0123803615570068,89.7746849060059,89.775,597,4022,8201432,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,first_per_id,1e+07,4,error,0.0115721225738525,NA,NA,600,1174,NA,NA,NA,0,`.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame.
+data.table,native rewrite,native,first_per_id,1e+07,4,ok,0.248963832855225,3.1117525100708,3.112;3.118,599,2042,8201432,TRUE,NA,0,NA
+collapse,native rewrite,native,first_per_id,1e+07,4,ok,0.0125858783721924,4.71438336372375,4.764;4.714,599,1570,8201432,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,first_per_id,1e+07,4,ok,0.0122733116149902,2.76852536201477,2.769;2.956,598,1499,8201432,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,pipeline,1e+07,4,ok,0.0189878940582275,137.151682376862,137.152,1177,6022,5915,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,pipeline,1e+07,4,ok,2.48756170272827,60.722318649292,60.722,1182,5207,5915,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,pipeline,1e+07,4,ok,5.1221330165863,4.360755443573,4.361;4.38,1231,4312,5915,TRUE,n: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,pipeline,1e+07,4,ok,2.02800011634827,3.0734167098999,3.554;3.073,1208,4143,5915,TRUE,n: integer->numeric,0,NA
+tidytable,same dplyr code,.by,pipeline,1e+07,4,ok,0.0199272632598877,58.7960271835327,58.796,1185,4148,5915,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,pipeline,1e+07,4,ok,0.0186161994934082,68.5275087356567,68.528,1180,5533,5915,TRUE,NA,0,"M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_inc Optimised exprs: inc_t1 To always evaluate everything in the same mask run `fastplyr::fas | M: Expressions will be evaluated in separate masks Normal exprs: status == ""A"" Optimised exprs: !excl To always evaluate everything in the same mask run `fastpl | M: Expressions will be evaluated in separate masks Normal exprs: n_pc Optimised exprs: med_pc To always evaluate everything in the same mask run `fastplyr::fast"
+collapse_mask,same dplyr code,group_by,pipeline,1e+07,4,ok,0.0181078910827637,29.4949209690094,29.495,1183,4052,5915,TRUE,NA,0,NA
+data.table,native rewrite,native,pipeline,1e+07,4,ok,2.07462406158447,23.6851141452789,23.685,1183,5376,5915,TRUE,NA,0,NA
+collapse,native rewrite,native,pipeline,1e+07,4,ok,0.0179836750030518,6.97305560112,10.079;6.973,1182,3484,5915,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,pipeline,1e+07,4,ok,0.0186116695404053,7.77734637260437,11.314;7.777,1182,3643,5915,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,join,1e+07,1,ok,1.48376941680908,12.1806457042694,14.282;12.181,876,4434,10000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,join,1e+07,1,ok,4.45659351348877,11.2232568264008,11.223;20.889,864,4736,10000000,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,join,1e+07,1,ok,1.53695440292358,20.1052489280701,20.105,902,4224,10000000,TRUE,NA,0,NA
+data.table,native rewrite,native,join,1e+07,1,ok,1.3819260597229,11.2779061794281,13.589;11.278,877,4391,10000000,TRUE,NA,0,NA
+collapse,native rewrite,native,join,1e+07,1,ok,0.0179507732391357,1.2263343334198,1.266;1.226,876,1605,10000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,summarise_many,1e+07,1,ok,0.281458377838135,27.5980944633484,27.598,599,1568,8201432,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,summarise_many,1e+07,1,ok,1.55846524238586,3.47705245018005,4.182;3.477,587,2066,8201432,TRUE,n_pers: integer->numeric; n_inc: integer->numeric; inc_sum: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,summarise_many,1e+07,1,ok,0.452599048614502,3.69886207580566,4.14;3.699,625,2466,8201432,TRUE,n_pers: integer->numeric; n_inc: integer->numeric,0,NA
+data.table,native rewrite,native,summarise_many,1e+07,1,ok,0.241045713424683,4.52505397796631,5.18;4.525,599,2530,8201432,TRUE,NA,0,NA
+collapse,native rewrite,native,summarise_many,1e+07,1,ok,0.0122673511505127,2.48806548118591,2.52;2.488,599,1336,8201432,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,median_many,1e+07,1,ok,0.56168532371521,18.126829624176,19.122;18.127,789,2791,10000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,median_many,1e+07,1,ok,3.959792137146,5.90100741386414,6.046;5.901,778,2553,10000000,TRUE,n_pc: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,median_many,1e+07,1,ok,1.55476665496826,8.19019961357117,8.19;8.249,815,2621,10000000,TRUE,n_pc: integer->numeric,0,NA
+data.table,native rewrite,native,median_many,1e+07,1,ok,0.552559852600098,3.50419020652771,5.48;3.504,790,2858,10000000,TRUE,NA,0,NA
+collapse,native rewrite,native,median_many,1e+07,1,ok,0.0132648944854736,1.15162205696106,1.32;1.152,789,1376,10000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,pipeline,1e+07,1,ok,1.97390079498291,63.8028101921082,63.803,1182,5207,5915,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,pipeline,1e+07,1,ok,5.7025294303894,14.4438164234161,15.804;14.444,1170,4241,5915,TRUE,n: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+tidypolars,same dplyr code,.by,pipeline,1e+07,1,ok,1.91819024085999,11.6952307224274,11.695;11.695,1208,3894,5915,TRUE,n: integer->numeric,0,NA
+data.table,native rewrite,native,pipeline,1e+07,1,ok,1.9731171131134,29.2407741546631,29.241,1183,5349,5915,TRUE,NA,0,NA
+collapse,native rewrite,native,pipeline,1e+07,1,ok,0.0199153423309326,7.4426429271698,10;7.443,1182,3480,5915,TRUE,NA,0,NA
+duckplyr,same dplyr code,.by,join,1e+07,4,ok,0.0285589694976807,11.0603456497192,12.382;11.06,931,3917,10000000,TRUE,NA,0,NA
+duckplyr,same dplyr code,.by,summarise_many,1e+07,4,ok,0.0167057514190674,1.44289064407349,1.57;1.443,653,3394,8201432,TRUE,n_inc: integer->numeric; inc_sum: integer->numeric,0,NA
+duckplyr,same dplyr code,.by,median_many,1e+07,4,ok (fallback),0.0161070823669434,28.1092834472656,28.109,844,3025,10000000,TRUE,NA,2,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`."
+duckplyr,same dplyr code,.by,first_per_id,1e+07,4,ok (fallback),0.026923656463623,84.2847011089325,84.285,653,4345,8201432,TRUE,NA,2,"M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter"
+duckplyr,same dplyr code,.by,pipeline,1e+07,4,ok (fallback),0.0298004150390625,52.633065700531,52.633,1236,6935,5915,TRUE,NA,4,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`."
+duckplyr,same dplyr code,.by,join,1e+07,1,ok,0.0259304046630859,17.5245177745819,17.525;17.689,870,3944,10000000,TRUE,,0,NA
+duckplyr,same dplyr code,.by,summarise_many,1e+07,1,ok,0.0219237804412842,4.86156558990479,6.142;4.862,592,1822,8201432,TRUE,n_inc: integer->numeric; inc_sum: integer->numeric,0,NA
+duckplyr,same dplyr code,.by,median_many,1e+07,1,ok (fallback),0.0180974006652832,27.245857000351,27.246,844,3088,10000000,TRUE,,2,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`."
+duckplyr,same dplyr code,.by,pipeline,1e+07,1,ok (fallback),0.028935432434082,80.2254374027252,80.225,1176,8195,5915,TRUE,,4,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`."

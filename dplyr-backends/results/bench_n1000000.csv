@@ -1,0 +1,141 @@
+backend,kind,style,task,n,threads,status,convert_s,secs,secs_all,base_mb,peak_mb,rows,same_values,type_diffs,fallbacks,note
+dplyr,same dplyr code,.by,join,1e+06,4,ok,0.0263018608093262,0.681801319122314,1.12;0.996;0.682,170,536,1000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,join,1e+06,4,ok,0.210324764251709,0.697033643722534,1.502;0.701;0.697,189,603,1000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,join,1e+06,4,ok,0.80420994758606,0.797269821166992,1.089;0.945;0.797,237,656,1000000,TRUE,NA,0,NA
+arrow,same dplyr code,.by,join,1e+06,4,ok,0.271567106246948,0.614811897277832,1.05;0.927;0.615,242,653,1000000,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,join,1e+06,4,ok,0.164490222930908,0.998162031173706,1.544;1.268;0.998,219,757,1000000,TRUE,NA,0,NA
+multidplyr,same dplyr code,group_by,join,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,join,1e+06,4,ok,0.0347816944122314,0.683272838592529,1.185;0.8;0.683,190,540,1000000,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,join,1e+06,4,ok,0.0160479545593262,0.0864109992980957,0.119;0.103;0.086,177,258,1000000,TRUE,NA,0,NA
+collapse_mask,same dplyr code,group_by,join,1e+06,4,ok,0.0175461769104004,0.627395629882812,1.163;1.044;0.627,184,557,1000000,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,join,1e+06,4,ok,0.0177459716796875,0.8927001953125,1.605;1.281;0.893,169,607,1000000,TRUE,NA,0,NA
+data.table,native rewrite,native,join,1e+06,4,ok,0.235422372817993,0.645885229110718,1.275;0.691;0.646,186,601,1000000,TRUE,NA,0,NA
+collapse,native rewrite,native,join,1e+06,4,ok,0.0161821842193604,0.0674076080322266,0.084;0.081;0.067,184,257,1000000,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,join,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,summarise_few,1e+06,4,ok,0.0114166736602783,0.0965008735656738,0.256;0.108;0.097,162,268,169,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,summarise_few,1e+06,4,ok,0.0865569114685059,0.26837158203125,0.432;0.274;0.268,180,307,169,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,summarise_few,1e+06,4,ok,0.509828329086304,0.0579750537872314,0.098;0.071;0.058,230,300,169,TRUE,n: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+arrow,same dplyr code,.by,summarise_few,1e+06,4,ok,0.224955320358276,0.09415602684021,0.241;0.152;0.094,234,302,169,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,summarise_few,1e+06,4,ok,0.150628328323364,0.0371928215026855,0.072;0.041;0.037,212,342,169,TRUE,n: integer->numeric,0,NA
+multidplyr,same dplyr code,group_by,summarise_few,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,summarise_few,1e+06,4,ok,0.0130305290222168,0.0822899341583252,0.233;0.087;0.082,183,280,169,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,summarise_few,1e+06,4,ok,0.0118374824523926,0.0865390300750732,0.194;0.094;0.087,169,242,169,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,summarise_few,1e+06,4,ok,0.0108058452606201,0.0976860523223877,0.111;0.11;0.098,176,243,169,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,summarise_few,1e+06,4,ok,0.0145034790039062,0.353877305984497,0.567;0.354;0.397,160,317,169,TRUE,NA,0,M: `summarise()` has grouped output by 'prov'. You can override using the `.groups` argument.
+data.table,native rewrite,native,summarise_few,1e+06,4,ok,0.0642139911651611,0.0661885738372803,0.165;0.075;0.066,179,306,169,TRUE,NA,0,NA
+collapse,native rewrite,native,summarise_few,1e+06,4,ok,0.0121481418609619,0.0683608055114746,0.083;0.068;0.07,176,240,169,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,summarise_few,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0120537281036377,15.2295114994049,16.063;15.23,143,892,820511,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0589914321899414,2.42704558372498,2.593;2.474;2.427,162,286,820511,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,summarise_many,1e+06,4,ok,0.36923623085022,0.316375970840454,0.404;0.356;0.316,211,497,820511,TRUE,n_pers: integer->numeric; n_inc: integer->numeric; inc_sum: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+arrow,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0212478637695312,1.53692746162415,2.128;1.719;1.537,215,512,820511,TRUE,n_inc: integer->numeric,0,NA
+tidypolars,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0489568710327148,0.125578165054321,0.191;0.128;0.126,193,459,820511,TRUE,n_pers: integer->numeric; n_inc: integer->numeric,0,NA
+multidplyr,same dplyr code,group_by,summarise_many,1e+06,4,ok,2.07310891151428,4.46634960174561,4.672;4.67;4.466,181,354,820511,TRUE,NA,0,NA
+tidytable,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0116276741027832,2.22069478034973,2.221;2.464;2.265,164,249,820511,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,summarise_many,1e+06,4,ok,0.012026309967041,3.7154757976532,4.962;3.715;3.726,151,526,820511,TRUE,NA,0,"M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_inc Optimised exprs: n_pers, inc_sum, and age_max To always evaluate everything in the same m"
+collapse_mask,same dplyr code,group_by,summarise_many,1e+06,4,ok,0.0111920833587646,0.202118873596191,0.22;0.214;0.202,158,243,820511,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,summarise_many,1e+06,4,error,0.0192852020263672,NA,NA,141,2288,NA,NA,NA,0,The class of `true` <integer> is not the same as the class of `false` <logical>
+data.table,native rewrite,native,summarise_many,1e+06,4,ok,0.0372686386108398,0.250157117843628,0.431;0.25;0.319,160,368,820511,TRUE,NA,0,NA
+collapse,native rewrite,native,summarise_many,1e+06,4,ok,0.0115060806274414,0.177337408065796,0.203;0.203;0.177,158,233,820511,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,summarise_many,1e+06,4,ok,0.0105860233306885,0.180851459503174,0.181;0.185;0.2,157,233,820511,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,median_many,1e+06,4,ok,0.0109157562255859,1.70426440238953,1.86;1.991;1.704,162,336,1000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,median_many,1e+06,4,WRONG,0.082834005355835,3.41966724395752,3.42;5.58;6.07,181,472,1000000,FALSE,NA,0,"DIFFERS: Component ""income"": Mean relative difference: 8.105869e-06 | W: Group 2 column 'med_pc': 81980.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 4 column 'med_pc': 39786.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 6 column 'med_pc': 54403.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 12 column 'med_pc': 81380.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (tar"
+dbplyr_duckdb,same dplyr code,.by,median_many,1e+06,4,ok,0.48204493522644,0.323328018188477,0.384;0.379;0.323,230,502,1000000,TRUE,n_pc: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+arrow,same dplyr code,.by,median_many,1e+06,4,WRONG,0.342832326889038,0.450962543487549,0.9;0.584;0.451,234,860,1000000,FALSE,n_pc: integer->numeric,0,"DIFFERS: Component ""income"": Mean relative difference: 0.0003963835 | W: median() currently returns an approximate median in Arrow This warning is displayed once per session."
+tidypolars,same dplyr code,.by,median_many,1e+06,4,ok,0.143889904022217,0.353578567504883,0.477;0.354;0.372,212,527,1000000,TRUE,n_pc: integer->numeric,0,NA
+multidplyr,same dplyr code,group_by,median_many,1e+06,4,ok,1.55023503303528,1.13816857337952,1.138;2.516;2.571,199,340,1000000,TRUE,NA,0,NA
+tidytable,same dplyr code,.by,median_many,1e+06,4,WRONG,0.0177185535430908,3.1119110584259,3.112;5.206;6.092,183,348,1000000,FALSE,NA,0,"DIFFERS: Component ""income"": Mean relative difference: 8.105869e-06 | W: Group 2 column 'med_pc': 81980.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 4 column 'med_pc': 39786.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 6 column 'med_pc': 54403.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (targ | W: Group 12 column 'med_pc': 81380.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'integer' (tar"
+fastplyr,same dplyr code,.by,median_many,1e+06,4,ok,0.0103001594543457,0.390071868896484,0.567;0.39;0.444,169,302,1000000,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_pc Optimised exprs: med_pc To always evaluate everything in the same mask run `fastplyr::fast
+collapse_mask,same dplyr code,group_by,median_many,1e+06,4,ok,0.0121409893035889,0.0777163505554199,0.097;0.091;0.078,177,241,1000000,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,median_many,1e+06,4,error,0.0118019580841064,NA,NA,160,499,NA,NA,NA,0,The class of `true` <numeric> is not the same as the class of `false` <logical>
+data.table,native rewrite,native,median_many,1e+06,4,ok,0.0672738552093506,0.215601921081543,0.469;0.302;0.216,179,423,1000000,TRUE,NA,0,NA
+collapse,native rewrite,native,median_many,1e+06,4,ok,0.011366605758667,0.0558397769927979,0.114;0.071;0.056,177,239,1000000,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,median_many,1e+06,4,ok,0.014167308807373,0.105947494506836,0.133;0.106;0.116,176,241,1000000,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,case_when,1e+06,4,ok,0.0111756324768066,0.0776674747467041,0.123;0.1;0.078,162,247,1000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,case_when,1e+06,4,ok,0.0854997634887695,0.147904634475708,0.408;0.28;0.148,182,433,1000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,case_when,1e+06,4,ok,0.483209133148193,0.206753730773926,0.24;0.207;0.207,230,464,1000000,TRUE,NA,0,NA
+arrow,same dplyr code,.by,case_when,1e+06,4,ok,0.323021173477173,0.111432313919067,0.396;0.286;0.111,234,365,1000000,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,case_when,1e+06,4,ok,0.152488231658936,0.261662721633911,0.335;0.279;0.262,212,458,1000000,TRUE,NA,0,NA
+multidplyr,same dplyr code,group_by,case_when,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,case_when,1e+06,4,ok,0.013413667678833,0.133626937866211,0.173;0.225;0.134,183,323,1000000,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,case_when,1e+06,4,ok,0.0111229419708252,0.10676383972168,0.183;0.117;0.107,169,266,1000000,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,case_when,1e+06,4,ok,0.0106730461120605,0.0755586624145508,0.1;0.092;0.076,176,261,1000000,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,case_when,1e+06,4,error,0.0116815567016602,NA,NA,160,161,NA,NA,NA,0,`case_when()` requires formula inputs.
+data.table,native rewrite,native,case_when,1e+06,4,ok,0.0650317668914795,0.145505905151367,0.379;0.146;0.207,179,381,1000000,TRUE,NA,0,NA
+collapse,native rewrite,native,case_when,1e+06,4,ok,0.012498140335083,0.0646083354949951,0.13;0.079;0.065,176,264,1000000,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,case_when,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,strings_dates,1e+06,4,ok,0.00981473922729492,3.53316211700439,4.961;4.253;3.533,162,577,1000000,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,strings_dates,1e+06,4,ok,0.0860629081726074,2.90434050559998,5.167;4.4;2.904,182,789,1000000,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,strings_dates,1e+06,4,ok,0.440852642059326,0.899024486541748,1.702;1.093;0.899,230,543,1000000,TRUE,NA,0,NA
+arrow,same dplyr code,.by,strings_dates,1e+06,4,error,0.336557388305664,NA,NA,234,272,NA,NA,NA,0,i In index: 15. i With name: days. Caused by error: ! NotImplemented: Unsupported cast from duration[s] to double using function cast_double
+tidypolars,same dplyr code,.by,strings_dates,1e+06,4,WRONG,0.134242057800293,1.01643705368042,1.701;1.119;1.016,212,643,1000000,FALSE,yr: numeric->integer,0,"DIFFERS: Component ""days"": Mean relative difference: 8.64e+10"
+multidplyr,same dplyr code,group_by,strings_dates,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,strings_dates,1e+06,4,ok,0.0122811794281006,3.71286082267761,5.19;4.023;3.713,183,578,1000000,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,strings_dates,1e+06,4,ok,0.0110068321228027,2.96318340301514,5.207;4.262;2.963,169,581,1000000,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,strings_dates,1e+06,4,ok,0.0123715400695801,3.40743350982666,4.814;3.662;3.407,177,575,1000000,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,strings_dates,1e+06,4,ok,0.0106713771820068,3.63211965560913,5.045;3.71;3.632,160,576,1000000,TRUE,NA,0,NA
+data.table,native rewrite,native,strings_dates,1e+06,4,ok,0.0651712417602539,0.999641895294189,1.846;1.071;1,179,438,1000000,TRUE,yr: numeric->integer,0,NA
+collapse,native rewrite,native,strings_dates,1e+06,4,ok,0.0107414722442627,0.969466686248779,2.031;1.157;0.969,176,417,1000000,TRUE,yr: numeric->integer,0,NA
+dplyr+collapse,dplyr + collapse fns,native,strings_dates,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,first_per_id,1e+06,4,ok,0.0106878280639648,7.21019339561462,7.409;7.432;7.21,143,567,820511,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,first_per_id,1e+06,4,ok,0.0709493160247803,1.96387577056885,1.964;2.235;2.153,163,329,820511,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,first_per_id,1e+06,4,ok,0.352686166763306,0.495144367218018,0.644;0.515;0.495,211,410,820511,TRUE,NA,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+arrow,same dplyr code,.by,first_per_id,1e+06,4,ok (fallback),0.0269672870635986,7.07523560523987,8.331;7.075;7.704,216,734,820511,TRUE,NA,3,W: In age == max(age): i Expression not supported in filter() in Arrow > Pulling data into R
+tidypolars,same dplyr code,.by,first_per_id,1e+06,4,ok,0.0507307052612305,0.232439041137695,0.263;0.232;0.249,193,431,820511,TRUE,NA,0,NA
+multidplyr,same dplyr code,group_by,first_per_id,1e+06,4,ok,2.00683522224426,4.02690935134888,4.027;4.132;4.232,181,354,820511,TRUE,NA,0,NA
+tidytable,same dplyr code,.by,first_per_id,1e+06,4,ok,0.0125117301940918,2.04576873779297,2.285;2.379;2.046,164,299,820511,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,first_per_id,1e+06,4,ok,0.0116045475006104,7.39213371276855,8.172;7.392;8.289,150,553,820511,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,first_per_id,1e+06,4,error,0.0102384090423584,NA,NA,157,210,NA,NA,NA,0,`.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame.
+poorman,same dplyr code,group_by,first_per_id,1e+06,4,ok,0.0119340419769287,67.150928735733,67.151,141,2166,820511,TRUE,NA,0,NA
+data.table,native rewrite,native,first_per_id,1e+06,4,ok,0.0360002517700195,0.348907470703125,0.349;0.351;0.36,160,309,820511,TRUE,NA,0,NA
+collapse,native rewrite,native,first_per_id,1e+06,4,ok,0.0109095573425293,0.287203788757324,0.363;0.311;0.287,159,249,820511,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,first_per_id,1e+06,4,ok,0.0104384422302246,0.1288001537323,0.177;0.153;0.129,158,244,820511,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.0132508277893066,0.182389736175537,0.356;0.284;0.182,162,297,643194,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.0877463817596436,0.148895978927612,0.328;0.164;0.149,182,357,643194,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.51591968536377,0.205565929412842,0.239;0.23;0.206,230,393,643194,TRUE,NA,0,NA
+arrow,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.304771661758423,0.38427996635437,0.733;0.556;0.384,234,383,643194,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.148744583129883,0.244437694549561,0.341;0.244;0.257,212,492,643194,TRUE,NA,0,NA
+multidplyr,same dplyr code,group_by,filter_arrange,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.012352466583252,0.208272933959961,0.334;0.287;0.208,185,328,643194,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.0111126899719238,0.198562383651733,0.381;0.239;0.199,169,283,643194,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: desc(weight) Optimised exprs: prov and id To always evaluate everything in the same mask run `f
+collapse_mask,same dplyr code,group_by,filter_arrange,1e+06,4,ok,0.0166049003601074,0.181306600570679,0.326;0.281;0.181,177,314,643194,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,filter_arrange,1e+06,4,ok,0.0124518871307373,0.297084331512451,0.395;0.363;0.297,160,317,643194,TRUE,NA,0,NA
+data.table,native rewrite,native,filter_arrange,1e+06,4,ok,0.0668444633483887,0.141731023788452,0.279;0.177;0.142,179,357,643194,TRUE,NA,0,NA
+collapse,native rewrite,native,filter_arrange,1e+06,4,ok,0.0114221572875977,0.0905265808105469,0.121;0.106;0.091,176,266,643194,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,filter_arrange,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,no grouped step: identical to dplyr
+dplyr,same dplyr code,.by,distinct_count,1e+06,4,ok,0.0116374492645264,0.119564771652222,0.263;0.124;0.12,162,271,26,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,distinct_count,1e+06,4,ok,0.0860233306884766,0.398914098739624,0.428;0.407;0.399,182,319,26,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,distinct_count,1e+06,4,ok,0.472296237945557,0.0828137397766113,0.096;0.083;0.086,230,334,26,TRUE,n_pc: integer->numeric; n: integer->numeric,0,NA
+arrow,same dplyr code,.by,distinct_count,1e+06,4,ok,0.349936246871948,0.156486511230469,0.521;0.156;0.306,234,362,26,TRUE,NA,0,NA
+tidypolars,same dplyr code,.by,distinct_count,1e+06,4,ok,0.153051376342773,0.0581045150756836,0.133;0.087;0.058,211,418,26,TRUE,n_pc: integer->numeric; n: integer->numeric,0,NA
+multidplyr,same dplyr code,group_by,distinct_count,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,distinct_count,1e+06,4,ok,0.0114915370941162,0.380893468856812,0.539;0.422;0.381,183,292,26,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,distinct_count,1e+06,4,ok,0.0128629207611084,0.103221893310547,0.31;0.103;0.114,169,253,26,TRUE,NA,0,M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run
+collapse_mask,same dplyr code,group_by,distinct_count,1e+06,4,ok,0.0108778476715088,0.111538648605347,0.245;0.128;0.112,177,281,26,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,distinct_count,1e+06,4,ok,0.0113914012908936,0.373097658157349,0.661;0.471;0.373,160,358,26,TRUE,NA,0,M: `summarise()` has grouped output by 'prov'. You can override using the `.groups` argument.
+data.table,native rewrite,native,distinct_count,1e+06,4,ok,0.0610415935516357,0.307940006256104,0.374;0.366;0.308,179,319,26,TRUE,NA,0,NA
+collapse,native rewrite,native,distinct_count,1e+06,4,ok,0.0113804340362549,0.0916240215301514,0.124;0.103;0.092,177,250,26,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,distinct_count,1e+06,4,ok,0.0134003162384033,0.108904361724854,0.227;0.118;0.109,177,269,26,TRUE,NA,0,NA
+dplyr,same dplyr code,.by,pipeline,1e+06,4,ok,0.0154502391815186,10.399156332016,10.928;10.689;10.399,201,845,5494,TRUE,NA,0,NA
+dtplyr,same dplyr code,.by,pipeline,1e+06,4,ok,0.240714311599731,4.06747722625732,4.52;4.067;4.432,220,699,5494,TRUE,NA,0,NA
+dbplyr_duckdb,same dplyr code,.by,pipeline,1e+06,4,ok,0.92574405670166,0.67507004737854,0.758;0.682;0.675,267,648,5494,TRUE,n: integer->numeric,0,W: Missing values are always removed in SQL aggregation functions. Use `na.rm = TRUE` to silence this warning This warning is displayed once every 8 hours.
+arrow,same dplyr code,.by,pipeline,1e+06,4,WRONG,0.497192144393921,5.76472282409668,7.1;5.765;8.2,272,3012,5494,FALSE,NA,3,"DIFFERS: Component ""inc_mean"": Mean relative difference: 9.088969e-05 | W: median() currently returns an approximate median in Arrow This warning is displayed once per session. | W: In case_when(!is.na(inc_pre) ~ inc_pre, !is.na(postal_code) & n_pc >= ...: i `.default` must be size 1; vectors of length > 1 not supported in Arrow > Pullin"
+tidypolars,same dplyr code,.by,pipeline,1e+06,4,ok,0.197389125823975,0.366992473602295,0.508;0.391;0.367,250,703,5494,TRUE,n: integer->numeric,0,NA
+multidplyr,same dplyr code,group_by,pipeline,1e+06,4,n/a,NA,NA,NA,NA,NA,NA,NA,NA,0,needs one table partitioned by the group key
+tidytable,same dplyr code,.by,pipeline,1e+06,4,ok,0.0180115699768066,4.21811413764954,4.791;4.218;4.299,221,596,5494,TRUE,NA,0,NA
+fastplyr,same dplyr code,.by,pipeline,1e+06,4,ok,0.0177185535430908,4.81917214393616,6.214;5.414;4.819,208,729,5494,TRUE,NA,0,"M: ! Expressions will be optimised where possible. Optimised expressions are independent from unoptimised ones and typical data-masking rules may not apply Run  | M: Expressions will be evaluated in separate masks Normal exprs: n_inc Optimised exprs: inc_t1 To always evaluate everything in the same mask run `fastplyr::fas | M: Expressions will be evaluated in separate masks Normal exprs: status == ""A"" Optimised exprs: !excl To always evaluate everything in the same mask run `fastpl | M: Expressions will be evaluated in separate masks Normal exprs: n_pc Optimised exprs: med_pc To always evaluate everything in the same mask run `fastplyr::fast"
+collapse_mask,same dplyr code,group_by,pipeline,1e+06,4,ok,0.0241146087646484,1.28594374656677,1.85;1.329;1.286,215,549,5494,TRUE,NA,0,NA
+poorman,same dplyr code,group_by,pipeline,1e+06,4,error,0.0281217098236084,NA,NA,200,2540,NA,NA,NA,0,The class of `true` <numeric> is not the same as the class of `false` <logical>
+data.table,native rewrite,native,pipeline,1e+06,4,ok,0.223861932754517,1.22210454940796,1.756;1.305;1.222,217,813,5494,TRUE,NA,0,NA
+collapse,native rewrite,native,pipeline,1e+06,4,ok,0.0167162418365479,0.505919456481934,0.845;0.53;0.506,215,418,5494,TRUE,NA,0,NA
+dplyr+collapse,dplyr + collapse fns,native,pipeline,1e+06,4,ok,0.0158121585845947,0.599857807159424,0.861;0.6;0.609,215,414,5494,TRUE,NA,0,NA
+duckplyr,same dplyr code,.by,join,1e+06,4,ok,0.0279197692871094,1.4027156829834,1.48;1.403;1.44,227,686,1000000,TRUE,,0,NA
+duckplyr,same dplyr code,.by,summarise_few,1e+06,4,ok,0.0161879062652588,0.0733940601348877,0.086;0.085;0.073,220,224,169,TRUE,,0,NA
+duckplyr,same dplyr code,.by,summarise_many,1e+06,4,ok,0.0149655342102051,0.230920314788818,0.265;0.231;0.266,201,617,820511,TRUE,n_inc: integer->numeric; inc_sum: integer->numeric,0,NA
+duckplyr,same dplyr code,.by,median_many,1e+06,4,ok (fallback),0.0162231922149658,2.06178689002991,2.648;2.062;2.687,220,606,1000000,TRUE,,6,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`."
+duckplyr,same dplyr code,.by,case_when,1e+06,4,ok (fallback),0.0172317028045654,0.599561214447021,1.178;0.762;0.6,233,553,1000000,TRUE,,3,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`."
+duckplyr,same dplyr code,.by,strings_dates,1e+06,4,ok (fallback),0.01546311378479,5.01299834251404,7.545;5.375;5.013,222,946,1000000,TRUE,,3,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`."
+duckplyr,same dplyr code,.by,first_per_id,1e+06,4,ok (fallback),0.0166385173797607,8.14905619621277,8.206;8.707;8.149,201,739,820511,TRUE,,6,"M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter"
+duckplyr,same dplyr code,.by,filter_arrange,1e+06,4,ok,0.0171735286712646,0.366980075836182,0.419;0.382;0.367,220,355,643194,TRUE,,0,NA
+duckplyr,same dplyr code,.by,distinct_count,1e+06,4,ok,0.0161664485931396,0.205759525299072,0.24;0.227;0.206,233,294,26,TRUE,n_pc: integer->numeric,0,NA
+duckplyr,same dplyr code,.by,pipeline,1e+06,4,ok (fallback),0.0273010730743408,4.66421341896057,5.153;4.664;4.724,272,1507,5494,TRUE,,12,"M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`."
