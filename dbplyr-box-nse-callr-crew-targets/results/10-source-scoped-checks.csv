@@ -14,3 +14,12 @@ own function at top level of _targets.R,tar_source,works
 own function at top level of _targets.R,envir,error: object 'fa' not found
 own function at top level of _targets.R,source_scoped,error: object 'fa' not found
 own function at top level of _targets.R,"source_scoped, e$fa",works
+own module imported in a source_scoped() file,"b.R: box::use(R/a[fa]), fa(): which fa() runs",box's own copy of a.R (not the pipeline's)
+own module imported in a source_scoped() file,b.R: fa() edited -> re-runs out_b?,yes; value after tar_make(): 2 (current)
+own module imported in a source_scoped() file,"c.R: box::use(am = R/a), am$fa(): fa() edited -> re-runs out_c?",no; value after tar_make(): 1 (stale)
+"dot-named helper, .helper() edited","source_scoped(), all.names = TRUE",re-runs out_a; value after tar_make(): 3 (current)
+"dot-named helper, .helper() edited","source_scoped(), all.names = FALSE",nothing re-runs; value after tar_make(): 2 (stale)
+"box alias, source_scoped()","a.R: its own alias + attached import, controller: none",works
+"box alias, source_scoped()","b.R: uses a.R's alias, controller: none",error: object 'stringr' not found
+"box alias, source_scoped()","a.R: its own alias + attached import, controller: crew",works
+"box alias, source_scoped()","b.R: uses a.R's alias, controller: crew",error: object 'stringr' not found

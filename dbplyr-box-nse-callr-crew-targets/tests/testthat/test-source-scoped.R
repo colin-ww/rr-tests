@@ -27,6 +27,16 @@ test_that("a forgotten import that base R also has gets base R's: dplyr filter()
   expect_error(e$fb(data.frame(v = 1:3)), "object 'v' not found")
 })
 
+test_that("box aliases stay with their file too (box::use(stringr), then stringr$fn())", {
+  e <- scoped_env(
+    a.R = c("box::use(stringr)", "fa <- function() stringr$str_length(\"abc\")"),
+    b.R = "fb <- function() stringr$str_length(\"abc\")"   # forgot box::use(stringr)
+  )
+  expect_equal(e$fa(), 3)
+  expect_error(e$fb(), "object 'stringr' not found")
+  expect_false(exists("stringr", envir = e, inherits = FALSE))
+})
+
 test_that("functions from other files are found by name, and every top-level object is visible", {
   e <- scoped_env(
     a.R = c("times2 <- function(x) x * k", "k <- 2"),

@@ -9,6 +9,7 @@ Question (from a follow-up to issue #5): if every target ran in its own fresh R 
 - **Under plain `tar_source()` (global env) with crew, package aliases work and attached names fail.**
   - Why: `box::use(stringr)` creates an object `stringr` in the global env, and targets ships global objects to workers. `box::use(dplyr[mutate])` instead attaches a `mod:dplyr` entry on the search path, which workers don't get.
   - So "top-of-file `box::use()` fails on crew" ([08](08-box-caching.md), [04](04-targets.md)) applies to attached names (`pkg[fn]`, `pkg[...]`), not to `pkg$fn()` aliases.
+- *Note from part 10:* the `source_scoped()` tested here copied box aliases into the pipeline env, so an alias (c.R's `stringr`) was shared between files. [`R/source_scoped.R`](../R/source_scoped.R) now keeps aliases per file too ([10](10-recommendation.md#how-source_scoped-works)).
 - **`source_scoped()` with `keep.source = TRUE` caches exactly like `FALSE`.** targets fingerprints functions by their code only. So keeping source info costs nothing for caching, and it keeps file and line numbers in tracebacks (the reason [08](08-box-caching.md#basesource-instead-of-tar_source) gives for preferring `tar_source()`).
 - **Caching was right in every variant:**
   - a second run, a touch and a comment re-ran nothing;
