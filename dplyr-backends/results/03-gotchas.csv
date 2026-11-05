@@ -1,22 +1,24 @@
 gotcha,variant,secs,result
-1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),fsum(income),0.221,reference
-1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),collapse::fsum(income),7.233,identical
-1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),cl$fsum(income)  (box::use(cl = collapse)),6.463,identical
-2 grouped median by postal_code (50k groups),"dplyr mutate(median(x), .by = g)",1.398,reference
-2 grouped median by postal_code (50k groups),"dplyr mutate(fmedian(x), .by = g)  (join_income() today)",0.559,identical values
+1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),fsum(income),0.21,reference
+1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),collapse::fsum(income),7.036,identical
+1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups),cl$fsum(income)  (box::use(cl = collapse)),6.693,identical
+2 grouped median by postal_code (50k groups),"dplyr mutate(median(x), .by = g)",1.371,reference
+2 grouped median by postal_code (50k groups),"dplyr mutate(fmedian(x), .by = g)  (join_income() today)",0.591,identical values
 2 grouped median by postal_code (50k groups),"dplyr mutate(fmedian(x, g, TRA = 'fill'))  (no .by)",0.053,identical values
-2 grouped median by postal_code (50k groups),collapse fgroup_by |> fmutate(fmedian()),0.061,identical values
-"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",data.table sum(!is.na(income)),1.005,reference
-"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",data.table sum(has)  (flag made first),0.216,identical
-"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",dtplyr sum(!is.na(income)),1.254,"same translation, same cost"
-"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",dtplyr sum(has),0.205,
+2 grouped median by postal_code (50k groups),collapse fgroup_by |> fmutate(fmedian()),0.051,identical values
+"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",data.table sum(!is.na(income)),0.962,reference
+"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",data.table sum(has)  (flag made first),0.212,identical
+"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",dtplyr sum(!is.na(income)),1.053,"same translation, same cost"
+"3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups",dtplyr sum(has),0.201,
 4 grouped median of int + another expression in the same mutate,dplyr,NA,"2,2,2,2.5,2.5"
 4 grouped median of int + another expression in the same mutate,dtplyr,NA,"2,2,2,2,2  (warning: precision lost)"
 4 grouped median of int + another expression in the same mutate,tidytable,NA,"2,2,2,2.5,2.5"
 4 grouped median of int + another expression in the same mutate,fix: median(as.numeric(x)),NA,"2,2,2,2.5,2.5"
-5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),dplyr .by,6.888,reference
-5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),duckplyr group_by() |> summarise() |> ungroup(),6.907,1 fallback(s) to dplyr
-5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),duckplyr summarise(.by = id),0.17,0 fallback(s)
+5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),dplyr .by,6.83,reference
+5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),duckplyr group_by() |> summarise() |> ungroup(),6.452,1 fallback(s) to dplyr
+5 duckplyr: group_by()/ungroup() vs .by (1.8M groups),duckplyr summarise(.by = id),0.177,0 fallback(s)
 6 set_collapse(mask = 'fast-stat-fun') also replaces sum() in your own helpers,sum(logical(0)),NA,base: 0; masked: integer(0) (length 0)
+8 duckplyr collect() is lazy (ALTREP): 1M-row join,collect(),0.141,looks done
+8 duckplyr collect() is lazy (ALTREP): 1M-row join,first use of the columns (anyNA),0.293,the query actually runs here
 "7 arrow median() is approximate (t-digest); income by prov, 1M rows",dplyr (first 4 provinces),NA,"59824, 59942, 59644, 59433.5"
 "7 arrow median() is approximate (t-digest); income by prov, 1M rows",arrow,NA,"59815.5, 59909.7, 59903.8, 59528.9  (13 of 13 medians differ)"

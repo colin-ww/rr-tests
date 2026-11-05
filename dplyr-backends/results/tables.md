@@ -12,41 +12,41 @@ Seconds per task (best of up to 3 runs, collect to tibble included, conversion e
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | dplyr | 0.053 (1.0×) | 0.015 (1.0×) | 1.35 (1.0×) | 0.15 (1.0×) | 0.012 (1.0×) | 0.14 (1.0×) | 0.67 (1.0×) | 0.020 (1.0×) | 0.015 (1.0×) | 0.82 (1.0×) | 2.43 (1.0×) | 231 |
 | dtplyr | 0.058 (0.9×) | 0.013 (1.1×) | 0.19 (7.1×) | 0.13 (1.1×) | 0.018 (0.7×) | 0.15 (1.0×) | 0.16 (4.1×) | 0.020 (1.0×) | 0.038 (0.4×) | 0.33 (2.5×) | 0.78 (3.1×) | 182 |
-| duckplyr | 0.058 (0.9×) | 0.016 (0.9×) | 0.044 (31.0×) | 0.26 (0.6×) fb | 0.068 (0.2×) fb | 0.30 (0.5×) fb | 0.68 (1.0×) fb | 0.031 (0.6×) | 0.035 (0.4×) | 0.55 (1.5×) fb | 1.50 (1.6×) | 247 |
-| dbplyr_duckdb | 0.095 (0.6×) | 0.047 (0.3×) | 0.098 (13.8×) | 0.092 (1.6×) | 0.068 (0.2×) | 0.15 (1.0×) | 0.15 (4.4×) | 0.065 (0.3×) | 0.041 (0.4×) | 0.35 (2.4×) | 0.80 (3.0×) | 228 |
-| arrow | 0.22 (0.2×) | 0.045 (0.3×) | 0.53 (2.6×) | **WRONG** 0.13 | 0.057 (0.2×) | error | 0.70 (1.0×) fb | 0.094 (0.2×) | 0.11 (0.1×) | **WRONG** 1.52 | - | 298 |
-| tidypolars | 0.094 (0.6×) | 0.028 (0.5×) | 0.041 (33.3×) | 0.058 (2.5×) | 0.055 (0.2×) | **WRONG** 0.16 | 0.046 (14.5×) | 0.041 (0.5×) | 0.024 (0.6×) | 0.15 (5.6×) | - | 259 |
+| duckplyr | 0.13 (0.4×) | 0.015 (1.0×) | 0.047 (29.0×) | 0.27 (0.5×) fb | 0.097 (0.1×) fb | 0.37 (0.4×) fb | 0.60 (1.1×) fb | 0.042 (0.5×) | 0.036 (0.4×) | 0.58 (1.4×) fb | 1.60 (1.5×) | 350 |
+| dbplyr_duckdb | 0.095 (0.6×) | 0.047 (0.3×) | 0.098 (13.8×) | 0.092 (1.6×) | 0.068 (0.2×) | 0.15 (1.0×) | 0.15 (4.4×) | 0.065 (0.3×) | 0.041 (0.4×) | 0.35 (2.4×) | 0.80 (3.0×) | 283 |
+| arrow | 0.22 (0.2×) | 0.045 (0.3×) | 0.53 (2.6×) | **WRONG** 0.13 | 0.057 (0.2×) | error | 0.70 (1.0×) fb | 0.094 (0.2×) | 0.11 (0.1×) | **WRONG** 1.52 | - | 607 |
+| tidypolars | 0.094 (0.6×) | 0.028 (0.5×) | 0.041 (33.3×) | 0.058 (2.5×) | 0.055 (0.2×) | **WRONG** 0.16 | 0.046 (14.5×) | 0.041 (0.5×) | 0.024 (0.6×) | 0.15 (5.6×) | - | 263 |
 | multidplyr | n/a | n/a | 0.62 (2.2×) | 0.42 (0.4×) | n/a | n/a | 0.65 (1.0×) | n/a | n/a | n/a | - | 187 |
-| tidytable | 0.046 (1.1×) | 0.013 (1.1×) | 0.18 (7.6×) | 0.13 (1.1×) | 0.017 (0.7×) | 0.16 (0.9×) | 0.19 (3.5×) | 0.024 (0.8×) | 0.049 (0.3×) | 0.31 (2.6×) | 0.81 (3.0×) | 174 |
-| fastplyr | 0.007 (7.8×) | 0.010 (1.5×) | 0.28 (4.9×) | 0.044 (3.3×) | 0.011 (1.2×) | 0.15 (0.9×) | 0.54 (1.2×) | 0.041 (0.5×) | 0.009 (1.7×) | 0.44 (1.9×) | 1.10 (2.2×) | 178 |
+| tidytable | 0.046 (1.1×) | 0.013 (1.1×) | 0.18 (7.6×) | 0.13 (1.1×) | 0.017 (0.7×) | 0.16 (0.9×) | 0.19 (3.5×) | 0.024 (0.8×) | 0.049 (0.3×) | 0.31 (2.6×) | 0.81 (3.0×) | 179 |
+| fastplyr | 0.007 (7.8×) | 0.010 (1.5×) | 0.28 (4.9×) | 0.044 (3.3×) | 0.011 (1.2×) | 0.15 (0.9×) | 0.54 (1.2×) | 0.041 (0.5×) | 0.009 (1.7×) | 0.44 (1.9×) | 1.10 (2.2×) | 186 |
 | collapse_mask | 0.054 (1.0×) | 0.008 (1.9×) | 0.015 (88.0×) | 0.006 (25.0×) | 0.008 (1.5×) | 0.13 (1.1×) | error | 0.017 (1.1×) | 0.011 (1.4×) | 0.090 (9.1×) | - | 171 |
 | poorman | 0.064 (0.8×) | 0.033 (0.4×) | error | error | error | 0.13 (1.1×) | 4.82 (0.1×) | 0.023 (0.9×) | 0.028 (0.5×) | error | - | 393 |
-| data.table | 0.051 (1.0×) | 0.009 (1.6×) | 0.024 (55.3×) | 0.019 (7.9×) | 0.014 (0.9×) | 0.060 (2.3×) | 0.023 (29.2×) | 0.014 (1.4×) | 0.036 (0.4×) | 0.12 (7.1×) | 0.25 (9.7×) | 170 |
-| collapse | 0.005 (10.2×) | 0.006 (2.7×) | 0.014 (98.4×) | 0.006 (23.9×) | 0.009 (1.4×) | 0.066 (2.2×) | 0.026 (25.4×) | 0.009 (2.2×) | 0.006 (2.7×) | 0.035 (23.8×) | 0.15 (16.6×) | 144 |
-| dplyr+collapse | n/a | n/a | 0.014 (95.0×) | 0.010 (15.5×) | n/a | n/a | 0.013 (51.0×) | n/a | 0.007 (2.1×) | 0.055 (15.1×) | 0.29 (8.5×) | 127 |
+| data.table | 0.051 (1.0×) | 0.009 (1.6×) | 0.024 (55.3×) | 0.019 (7.9×) | 0.014 (0.9×) | 0.060 (2.3×) | 0.023 (29.2×) | 0.014 (1.4×) | 0.036 (0.4×) | 0.12 (7.1×) | 0.25 (9.7×) | 184 |
+| collapse | 0.005 (10.2×) | 0.006 (2.7×) | 0.014 (98.4×) | 0.006 (23.9×) | 0.009 (1.4×) | 0.066 (2.2×) | 0.026 (25.4×) | 0.009 (2.2×) | 0.006 (2.7×) | 0.035 (23.8×) | 0.15 (16.6×) | 160 |
+| dplyr+collapse | n/a | n/a | 0.014 (95.0×) | 0.010 (15.5×) | n/a | n/a | 0.013 (51.0×) | n/a | 0.007 (2.1×) | 0.055 (15.1×) | 0.29 (8.5×) | 151 |
 
 Conversion from tibble to the backend's object, slowest task's input (s): 
-dplyr 0.017 · dtplyr 0.067 · duckplyr 0.025 · dbplyr_duckdb 0.67 · arrow 0.11 · tidypolars 0.041 · tidytable 0.019 · fastplyr 0.017 · collapse_mask 0.021 · poorman 0.019 · data.table 0.028 · collapse 0.031 · multidplyr 0.53 · dplyr+collapse 0.017
+dplyr 0.017 · dtplyr 0.067 · dbplyr_duckdb 0.67 · arrow 0.11 · tidypolars 0.041 · tidytable 0.019 · fastplyr 0.017 · collapse_mask 0.021 · poorman 0.019 · data.table 0.028 · collapse 0.031 · multidplyr 0.53 · dplyr+collapse 0.017 · duckplyr 0.028
 
 <details><summary>Errors, fallbacks, wrong results (notes)</summary>
 
 | task | backend | status | note |
 |---|---|---|---|
 | summarise_many | poorman | error | The class of `true` <integer> is not the same as the class of `false` <logical> |
-| median_many | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i \| M: Error processing duckplyr query with DuckDB, falling b |
 | median_many | arrow | WRONG | DIFFERS: Component "income": Mean relative difference: 0.0009205397 \| W: median() currently returns an approximate median in Arrow This warning is displayed once per session. |
 | median_many | poorman | error | The class of `true` <numeric> is not the same as the class of `false` <logical> |
-| case_when | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`. |
 | case_when | poorman | error | `case_when()` requires formula inputs. |
-| strings_dates | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`. |
 | strings_dates | arrow | error | i In index: 15. i With name: days. Caused by error: ! NotImplemented: Unsupported cast from duration[s] to double using function cast_double |
 | strings_dates | tidypolars | WRONG | DIFFERS: Component "days": Mean relative difference: 8.64e+10 |
-| first_per_id | duckplyr | ok (fallback) | M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter |
 | first_per_id | arrow | ok (fallback) | W: In age == max(age): i Expression not supported in filter() in Arrow > Pulling data into R |
 | first_per_id | collapse_mask | error | `.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame. |
-| pipeline | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. \| M: Error processing duckplyr query with DuckDB, falling back to dplyr. Ca |
 | pipeline | arrow | WRONG | DIFFERS: Component "inc_mean": Mean relative difference: 0.0003844764 \| W: median() currently returns an approximate median in Arrow This warning is displayed once per session. \| W: In case_when(!is.na(inc_pre) ~ inc_pre |
 | pipeline | poorman | error | The class of `true` <numeric> is not the same as the class of `false` <logical> |
+| median_many | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i \| M: Error processing duckplyr query with DuckDB, falling b |
+| case_when | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`. |
+| strings_dates | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`. |
+| first_per_id | duckplyr | ok (fallback) | M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter |
+| pipeline | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. \| M: Error processing duckplyr query with DuckDB, falling back to dplyr. Ca |
 
 </details>
 
@@ -60,21 +60,21 @@ Seconds per task (best of up to 3 runs, collect to tibble included, conversion e
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | dplyr | 0.68 (1.0×) | 0.097 (1.0×) | 15 (1.0×) | 1.70 (1.0×) | 0.078 (1.0×) | 3.53 (1.0×) | 7.21 (1.0×) | 0.18 (1.0×) | 0.12 (1.0×) | 10 (1.0×) | 29 (1.0×) | 892 |
 | dtplyr | 0.70 (1.0×) | 0.27 (0.4×) | 2.43 (6.3×) | **WRONG** 3.42 | 0.15 (0.5×) | 2.90 (1.2×) | 1.96 (3.7×) | 0.15 (1.2×) | 0.40 (0.3×) | 4.07 (2.6×) | - | 789 |
-| duckplyr | 0.49 (1.4×) | 0.063 (1.5×) | 0.18 (82.8×) | 1.78 (1.0×) fb | 0.36 (0.2×) fb | 4.58 (0.8×) fb | 7.80 (0.9×) fb | 0.26 (0.7×) | 0.21 (0.6×) | 4.30 (2.4×) fb | 16 (1.8×) | 817 |
+| duckplyr | 1.40 (0.5×) | 0.073 (1.3×) | 0.23 (66.0×) | 2.06 (0.8×) fb | 0.60 (0.1×) fb | 5.01 (0.7×) fb | 8.15 (0.9×) fb | 0.37 (0.5×) | 0.21 (0.6×) | 4.66 (2.2×) fb | 18 (1.6×) | 1507 |
 | dbplyr_duckdb | 0.80 (0.9×) | 0.058 (1.7×) | 0.32 (48.1×) | 0.32 (5.3×) | 0.21 (0.4×) | 0.90 (3.9×) | 0.50 (14.6×) | 0.21 (0.9×) | 0.083 (1.4×) | 0.68 (15.4×) | 3.38 (8.5×) | 656 |
-| arrow | 0.61 (1.1×) | 0.094 (1.0×) | 1.54 (9.9×) | **WRONG** 0.45 | 0.11 (0.7×) | error | 7.08 (1.0×) fb | 0.38 (0.5×) | 0.16 (0.8×) | **WRONG** 5.76 | - | 860 |
+| arrow | 0.61 (1.1×) | 0.094 (1.0×) | 1.54 (9.9×) | **WRONG** 0.45 | 0.11 (0.7×) | error | 7.08 (1.0×) fb | 0.38 (0.5×) | 0.16 (0.8×) | **WRONG** 5.76 | - | 3012 |
 | tidypolars | 1.00 (0.7×) | 0.037 (2.6×) | 0.13 (121.3×) | 0.35 (4.8×) | 0.26 (0.3×) | **WRONG** 1.02 | 0.23 (31.0×) | 0.24 (0.7×) | 0.058 (2.1×) | 0.37 (28.3×) | - | 757 |
 | multidplyr | n/a | n/a | 4.47 (3.4×) | 1.14 (1.5×) | n/a | n/a | 4.03 (1.8×) | n/a | n/a | n/a | - | 354 |
-| tidytable | 0.68 (1.0×) | 0.082 (1.2×) | 2.22 (6.9×) | **WRONG** 3.11 | 0.13 (0.6×) | 3.71 (1.0×) | 2.05 (3.5×) | 0.21 (0.9×) | 0.38 (0.3×) | 4.22 (2.5×) | - | 578 |
-| fastplyr | 0.086 (7.9×) | 0.087 (1.1×) | 3.72 (4.1×) | 0.39 (4.4×) | 0.11 (0.7×) | 2.96 (1.2×) | 7.39 (1.0×) | 0.20 (0.9×) | 0.10 (1.2×) | 4.82 (2.2×) | 15 (1.9×) | 581 |
+| tidytable | 0.68 (1.0×) | 0.082 (1.2×) | 2.22 (6.9×) | **WRONG** 3.11 | 0.13 (0.6×) | 3.71 (1.0×) | 2.05 (3.5×) | 0.21 (0.9×) | 0.38 (0.3×) | 4.22 (2.5×) | - | 596 |
+| fastplyr | 0.086 (7.9×) | 0.087 (1.1×) | 3.72 (4.1×) | 0.39 (4.4×) | 0.11 (0.7×) | 2.96 (1.2×) | 7.39 (1.0×) | 0.20 (0.9×) | 0.10 (1.2×) | 4.82 (2.2×) | 15 (1.9×) | 729 |
 | collapse_mask | 0.63 (1.1×) | 0.098 (1.0×) | 0.20 (75.3×) | 0.078 (21.9×) | 0.076 (1.0×) | 3.41 (1.0×) | error | 0.18 (1.0×) | 0.11 (1.1×) | 1.29 (8.1×) | - | 575 |
-| poorman | 0.89 (0.8×) | 0.35 (0.3×) | error | error | error | 3.63 (1.0×) | 67 (0.1×) | 0.30 (0.6×) | 0.37 (0.3×) | error | - | 2288 |
-| data.table | 0.65 (1.1×) | 0.066 (1.5×) | 0.25 (60.9×) | 0.22 (7.9×) | 0.15 (0.5×) | 1.00 (3.5×) | 0.35 (20.7×) | 0.14 (1.3×) | 0.31 (0.4×) | 1.22 (8.5×) | 3.12 (9.2×) | 601 |
-| collapse | 0.067 (10.1×) | 0.068 (1.4×) | 0.18 (85.9×) | 0.056 (30.5×) | 0.065 (1.2×) | 0.97 (3.6×) | 0.29 (25.1×) | 0.091 (2.0×) | 0.092 (1.3×) | 0.51 (20.6×) | 1.87 (15.4×) | 417 |
-| dplyr+collapse | n/a | n/a | 0.18 (84.2×) | 0.11 (16.1×) | n/a | n/a | 0.13 (56.0×) | n/a | 0.11 (1.1×) | 0.60 (17.3×) | 5.10 (5.7×) | 269 |
+| poorman | 0.89 (0.8×) | 0.35 (0.3×) | error | error | error | 3.63 (1.0×) | 67 (0.1×) | 0.30 (0.6×) | 0.37 (0.3×) | error | - | 2540 |
+| data.table | 0.65 (1.1×) | 0.066 (1.5×) | 0.25 (60.9×) | 0.22 (7.9×) | 0.15 (0.5×) | 1.00 (3.5×) | 0.35 (20.7×) | 0.14 (1.3×) | 0.31 (0.4×) | 1.22 (8.5×) | 3.12 (9.2×) | 813 |
+| collapse | 0.067 (10.1×) | 0.068 (1.4×) | 0.18 (85.9×) | 0.056 (30.5×) | 0.065 (1.2×) | 0.97 (3.6×) | 0.29 (25.1×) | 0.091 (2.0×) | 0.092 (1.3×) | 0.51 (20.6×) | 1.87 (15.4×) | 418 |
+| dplyr+collapse | n/a | n/a | 0.18 (84.2×) | 0.11 (16.1×) | n/a | n/a | 0.13 (56.0×) | n/a | 0.11 (1.1×) | 0.60 (17.3×) | 5.10 (5.7×) | 414 |
 
 Conversion from tibble to the backend's object, slowest task's input (s): 
-dplyr 0.026 · dtplyr 0.24 · duckplyr 0.028 · dbplyr_duckdb 0.93 · arrow 0.50 · tidypolars 0.20 · tidytable 0.035 · fastplyr 0.018 · collapse_mask 0.024 · poorman 0.028 · data.table 0.24 · collapse 0.017 · multidplyr 2.07 · dplyr+collapse 0.016
+dplyr 0.026 · dtplyr 0.24 · dbplyr_duckdb 0.93 · arrow 0.50 · tidypolars 0.20 · tidytable 0.035 · fastplyr 0.018 · collapse_mask 0.024 · poorman 0.028 · data.table 0.24 · collapse 0.017 · multidplyr 2.07 · dplyr+collapse 0.016 · duckplyr 0.028
 
 <details><summary>Errors, fallbacks, wrong results (notes)</summary>
 
@@ -82,21 +82,86 @@ dplyr 0.026 · dtplyr 0.24 · duckplyr 0.028 · dbplyr_duckdb 0.93 · arrow 0.50
 |---|---|---|---|
 | summarise_many | poorman | error | The class of `true` <integer> is not the same as the class of `false` <logical> |
 | median_many | dtplyr | WRONG | DIFFERS: Component "income": Mean relative difference: 8.105869e-06 \| W: Group 2 column 'med_pc': 81980.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'inte |
-| median_many | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i \| M: Error processing duckplyr query with DuckDB, falling b |
 | median_many | arrow | WRONG | DIFFERS: Component "income": Mean relative difference: 0.0003963835 \| W: median() currently returns an approximate median in Arrow This warning is displayed once per session. |
 | median_many | tidytable | WRONG | DIFFERS: Component "income": Mean relative difference: 8.105869e-06 \| W: Group 2 column 'med_pc': 81980.500000 (type 'double') at RHS position 1 out-of-range(NA) or truncated (precision lost) when assigning to type 'inte |
 | median_many | poorman | error | The class of `true` <numeric> is not the same as the class of `false` <logical> |
-| case_when | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`. |
 | case_when | poorman | error | `case_when()` requires formula inputs. |
-| strings_dates | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`. |
 | strings_dates | arrow | error | i In index: 15. i With name: days. Caused by error: ! NotImplemented: Unsupported cast from duration[s] to double using function cast_double |
 | strings_dates | tidypolars | WRONG | DIFFERS: Component "days": Mean relative difference: 8.64e+10 |
-| first_per_id | duckplyr | ok (fallback) | M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter |
 | first_per_id | arrow | ok (fallback) | W: In age == max(age): i Expression not supported in filter() in Arrow > Pulling data into R |
 | first_per_id | collapse_mask | error | `.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame. |
-| pipeline | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. \| M: Error processing duckplyr query with DuckDB, falling back to dplyr. Ca |
 | pipeline | arrow | WRONG | DIFFERS: Component "inc_mean": Mean relative difference: 9.088969e-05 \| W: median() currently returns an approximate median in Arrow This warning is displayed once per session. \| W: In case_when(!is.na(inc_pre) ~ inc_pre |
 | pipeline | poorman | error | The class of `true` <numeric> is not the same as the class of `false` <logical> |
+| median_many | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i \| M: Error processing duckplyr query with DuckDB, falling b |
+| case_when | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `case_when()`. |
+| strings_dates | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `paste0()`. |
+| first_per_id | duckplyr | ok (fallback) | M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter |
+| pipeline | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. \| M: Error processing duckplyr query with DuckDB, falling back to dplyr. Ca |
+
+</details>
+
+## n = 10,000,000 units (4 threads)
+
+Seconds per task (best of up to 3 runs, collect to tibble included, conversion excluded) and speed-up vs dplyr.
+`fb` = ran, but (partly) fell back to dplyr/R. **WRONG** = ran, result differs from dplyr. `n/a` = not applicable.
+`total` = sum of the 9 single-step tasks, only if all ran (dplyr+collapse: dplyr's time for the steps it leaves as dplyr). `peak_mb` = highest peak RSS of the process (data included; multidplyr's workers not counted).
+
+| backend | join | summarise_many | median_many | first_per_id | pipeline | total | peak_mb |
+|---|---|---|---|---|---|---|---|
+| dplyr | 13 (1.0×) | 189 (1.0×) | 21 (1.0×) | 83 (1.0×) | 137 (1.0×) | - | 7223 |
+| dtplyr | 10 (1.2×) | 28 (6.8×) | 19 (1.2×) | 25 (3.3×) | 61 (2.3×) | - | 5207 |
+| duckplyr | 11 (1.1×) | 1.44 (131.2×) | 28 (0.8×) fb | 84 (1.0×) fb | 53 (2.6×) fb | - | 6935 |
+| dbplyr_duckdb | 13 (1.0×) | 2.54 (74.4×) | 4.58 (4.7×) | 4.57 (18.2×) | 4.36 (31.5×) | - | 4601 |
+| tidypolars | 22 (0.6×) | 1.21 (155.8×) | 6.25 (3.4×) | 3.31 (25.2×) | 3.07 (44.6×) | - | 4227 |
+| tidytable | 13 (0.9×) | 28 (6.8×) | 17 (1.2×) | 27 (3.1×) | 59 (2.3×) | - | 4273 |
+| fastplyr | 1.70 (7.3×) | 50 (3.8×) | 4.42 (4.8×) | 90 (0.9×) | 69 (2.0×) | - | 5533 |
+| collapse_mask | 12 (1.0×) | 2.82 (67.2×) | 1.35 (15.9×) | error | 29 (4.7×) | - | 4052 |
+| data.table | 9.96 (1.3×) | 3.04 (62.2×) | 3.58 (6.0×) | 3.11 (26.8×) | 24 (5.8×) | - | 5376 |
+| collapse | 1.45 (8.6×) | 2.50 (75.7×) | 1.10 (19.4×) | 4.71 (17.7×) | 6.97 (19.7×) | - | 3484 |
+| dplyr+collapse | n/a | 2.48 (76.3×) | 1.65 (12.9×) | 2.77 (30.1×) | 7.78 (17.6×) | - | 3643 |
+
+Conversion from tibble to the backend's object, slowest task's input (s): 
+dplyr 0.025 · dtplyr 2.49 · dbplyr_duckdb 5.12 · tidypolars 2.03 · tidytable 0.020 · fastplyr 0.019 · collapse_mask 0.019 · data.table 2.07 · collapse 0.020 · dplyr+collapse 0.019 · duckplyr 0.030
+
+### Threads at n = 10,000,000: 1 vs 4
+
+dplyr is single-threaded, so its time is the same at any thread count.
+
+| backend | task | 1 thread(s), s | 4 threads, s | speedup |
+|---|---|---|---|---|
+| collapse | join | 1.23 | 1.45 | 0.8× |
+| data.table | join | 11 | 9.96 | 1.1× |
+| dbplyr_duckdb | join | 11 | 13 | 0.9× |
+| dtplyr | join | 12 | 10 | 1.2× |
+| duckplyr | join | 18 | 11 | 1.6× |
+| tidypolars | join | 20 | 22 | 0.9× |
+| collapse | median_many | 1.15 | 1.10 | 1.0× |
+| data.table | median_many | 3.50 | 3.58 | 1.0× |
+| dbplyr_duckdb | median_many | 5.90 | 4.58 | 1.3× |
+| dtplyr | median_many | 18 | 19 | 1.0× |
+| duckplyr | median_many | 27 | 28 | 1.0× |
+| tidypolars | median_many | 8.19 | 6.25 | 1.3× |
+| collapse | pipeline | 7.44 | 6.97 | 1.1× |
+| data.table | pipeline | 29 | 24 | 1.2× |
+| dbplyr_duckdb | pipeline | 14 | 4.36 | 3.3× |
+| dtplyr | pipeline | 64 | 61 | 1.1× |
+| duckplyr | pipeline | 80 | 53 | 1.5× |
+| tidypolars | pipeline | 12 | 3.07 | 3.8× |
+| collapse | summarise_many | 2.49 | 2.50 | 1.0× |
+| data.table | summarise_many | 4.53 | 3.04 | 1.5× |
+| dbplyr_duckdb | summarise_many | 3.48 | 2.54 | 1.4× |
+| dtplyr | summarise_many | 28 | 28 | 1.0× |
+| duckplyr | summarise_many | 4.86 | 1.44 | 3.4× |
+| tidypolars | summarise_many | 3.70 | 1.21 | 3.0× |
+
+<details><summary>Errors, fallbacks, wrong results (notes)</summary>
+
+| task | backend | status | note |
+|---|---|---|---|
+| first_per_id | collapse_mask | error | `.data` must be a valid <grouped_df> object. Caused by error in `validate_grouped_df()`: ! The `groups` attribute must be a data frame. |
+| median_many | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! `sum(na.rm = FALSE)` not supported in window functions i \| M: Error processing duckplyr query with DuckDB, falling b |
+| first_per_id | duckplyr | ok (fallback) | M: Cannot process duckplyr query with DuckDB, falling back to dplyr. i `filter(.by = ...)` not implemented, try `mutate(.by = ...)` followed by a simple `filter |
+| pipeline | duckplyr | ok (fallback) | M: Error processing duckplyr query with DuckDB, falling back to dplyr. Caused by error in `mutate()`: ! Can't translate function `as.numeric()`. \| M: Error processing duckplyr query with DuckDB, falling back to dplyr. Ca |
 
 </details>
 
@@ -131,32 +196,34 @@ dplyr 0.026 · dtplyr 0.24 · duckplyr 0.028 · dbplyr_duckdb 0.93 · arrow 0.50
 | sort_strings | arrange(s) for b B a _ A (dplyr 1.1+: C locale -> A B _ a b; SAS: same) | A,B,_,a,b | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | first_dot | SAS first.: arrange(g, desc(v)) \|> distinct(g, .keep_all = TRUE) -> v = 3, 9 | 3,9 | ✓ | ✓ | ✓ | ✓ | **1,9** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | grouped_filter | group_by(g) \|> filter(v == max(v)) -> v = 3, 9 | 3,9 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | error | ✓ | ✓ |  |
-| factor_groups | summarise by a factor with levels c('z', 'a'): type and order of the group column | z,a \| 2,4 | ✓ | ✓ | ✓ | ✓ type: factor,numeric | **a,z \| 4,2** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| roundtrip_types | column types after a no-op round trip (filter(TRUE)): int dbl chr fct lgl Date POSIXct | 1.5 \| 2026-01-01 \| lvl \| 1 \| TRUE \| a \|  | ✓ | ✓ | ✓ | ✓ | error | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| factor_groups | summarise by a factor with levels c('z', 'a'): type and order of the group column | z,a \| 2,4 | ✓ | ✓ | ✓ | ✓ type: factor,numeric | **a,z \| 4,2** | **a,z \| 4,2** | ✓ | ✓ | ✓ | ✓ | ✓ |
+| roundtrip_types | column types after a no-op round trip (filter(!is.na(i))): int dbl chr fct lgl Date POSIXct | 1.5 \| 2026-01-01 \| lvl \| 1 \| TRUE \| a \|  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ## 03 gotchas
 
 | gotcha | variant | secs | result |
 |---|---|---|---|
-| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | fsum(income) | 0.221 | reference |
-| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | collapse::fsum(income) | 7.233 | identical |
-| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | cl$fsum(income)  (box::use(cl = collapse)) | 6.463 | identical |
-| 2 grouped median by postal_code (50k groups) | dplyr mutate(median(x), .by = g) | 1.398 | reference |
-| 2 grouped median by postal_code (50k groups) | dplyr mutate(fmedian(x), .by = g)  (join_income() today) | 0.559 | identical values |
+| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | fsum(income) | 0.21 | reference |
+| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | collapse::fsum(income) | 7.036 | identical |
+| 1 collapse: bare vs pkg:: vs box alias inside fsummarise (1.8M groups) | cl$fsum(income)  (box::use(cl = collapse)) | 6.693 | identical |
+| 2 grouped median by postal_code (50k groups) | dplyr mutate(median(x), .by = g) | 1.371 | reference |
+| 2 grouped median by postal_code (50k groups) | dplyr mutate(fmedian(x), .by = g)  (join_income() today) | 0.591 | identical values |
 | 2 grouped median by postal_code (50k groups) | dplyr mutate(fmedian(x, g, TRA = 'fill'))  (no .by) | 0.053 | identical values |
-| 2 grouped median by postal_code (50k groups) | collapse fgroup_by \|> fmutate(fmedian()) | 0.061 | identical values |
-| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | data.table sum(!is.na(income)) | 1.005 | reference |
-| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | data.table sum(has)  (flag made first) | 0.216 | identical |
-| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | dtplyr sum(!is.na(income)) | 1.254 | same translation, same cost |
-| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | dtplyr sum(has) | 0.205 |  |
+| 2 grouped median by postal_code (50k groups) | collapse fgroup_by \|> fmutate(fmedian()) | 0.051 | identical values |
+| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | data.table sum(!is.na(income)) | 0.962 | reference |
+| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | data.table sum(has)  (flag made first) | 0.212 | identical |
+| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | dtplyr sum(!is.na(income)) | 1.053 | same translation, same cost |
+| 3 data.table GForce: sum(!is.na(x)) vs sum(flag), 1.8M groups | dtplyr sum(has) | 0.201 |  |
 | 4 grouped median of int + another expression in the same mutate | dplyr |  | 2,2,2,2.5,2.5 |
 | 4 grouped median of int + another expression in the same mutate | dtplyr |  | 2,2,2,2,2  (warning: precision lost) |
 | 4 grouped median of int + another expression in the same mutate | tidytable |  | 2,2,2,2.5,2.5 |
 | 4 grouped median of int + another expression in the same mutate | fix: median(as.numeric(x)) |  | 2,2,2,2.5,2.5 |
-| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | dplyr .by | 6.888 | reference |
-| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | duckplyr group_by() \|> summarise() \|> ungroup() | 6.907 | 1 fallback(s) to dplyr |
-| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | duckplyr summarise(.by = id) | 0.17 | 0 fallback(s) |
+| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | dplyr .by | 6.83 | reference |
+| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | duckplyr group_by() \|> summarise() \|> ungroup() | 6.452 | 1 fallback(s) to dplyr |
+| 5 duckplyr: group_by()/ungroup() vs .by (1.8M groups) | duckplyr summarise(.by = id) | 0.177 | 0 fallback(s) |
 | 6 set_collapse(mask = 'fast-stat-fun') also replaces sum() in your own helpers | sum(logical(0)) |  | base: 0; masked: integer(0) (length 0) |
+| 8 duckplyr collect() is lazy (ALTREP): 1M-row join | collect() | 0.141 | looks done |
+| 8 duckplyr collect() is lazy (ALTREP): 1M-row join | first use of the columns (anyNA) | 0.293 | the query actually runs here |
 | 7 arrow median() is approximate (t-digest); income by prov, 1M rows | dplyr (first 4 provinces) |  | 59824, 59942, 59644, 59433.5 |
 | 7 arrow median() is approximate (t-digest); income by prov, 1M rows | arrow |  | 59815.5, 59909.7, 59903.8, 59528.9  (13 of 13 medians differ) |
 

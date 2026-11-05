@@ -44,8 +44,8 @@ for (f in bench_files) {
   hyb <- cell |> filter(backend == "dplyr+collapse", status == "n/a") |> select(backend, task) |>
     left_join(cell |> filter(backend == "dplyr") |> select(task, secs, status), by = "task")
   tot <- cell |> filter(!(backend == "dplyr+collapse" & status == "n/a")) |> bind_rows(hyb) |> filter(task != "pipeline") |> summarise(
-    total = if (all(status %in% c("ok", "ok (fallback)")) && n() == length(TASKS) - 1) sum(secs) else NA_real_,
-    peak_mb = suppressWarnings(max(peak_mb, na.rm = TRUE)), .by = backend)
+    total = if (all(status %in% c("ok", "ok (fallback)")) && n() == length(TASKS) - 1) sum(secs) else NA_real_, .by = backend) |>
+    left_join(cell |> summarise(peak_mb = suppressWarnings(max(peak_mb, na.rm = TRUE)), .by = backend), by = "backend")
   wide <- wide |> left_join(tot, by = "backend") |>
     mutate(total = ifelse(is.na(total), "-", sprintf("%s (%.1f×)", fmt_s(total), total[backend == "dplyr"] / total)),
            peak_mb = ifelse(is.finite(peak_mb), round(peak_mb), NA))

@@ -67,8 +67,10 @@ Sys.setenv(DUCKPLYR_FALLBACK_INFO = "TRUE", DUCKPLYR_FALLBACK_COLLECT = "0", DUC
 dk <- duckplyr::as_duckdb_tibble(p)
 fb <- 0L; count_fb <- \(expr) withCallingHandlers(expr, message = \(m) { if (grepl("fallback|falling back", conditionMessage(m))) fb <<- fb + 1L; invokeRestart("muffleMessage") })
 a <- tm(p |> summarise(s = sum(income, na.rm = TRUE), m = max(age), .by = id))
-fb <- 0L; b <- tm(count_fb(dk |> group_by(id) |> summarise(s = sum(income, na.rm = TRUE), m = max(age)) |> ungroup() |> collect())); fb_b <- fb
-fb <- 0L; c <- tm(count_fb(dk |> summarise(s = sum(income, na.rm = TRUE), m = max(age), .by = id) |> collect())); fb_c <- fb
+# collect() alone leaves lazy ALTREP columns (the query runs on first touch), so touch them inside the timer
+done <- \(x) { x <- collect(x); invisible(lapply(x, anyNA)); x }
+fb <- 0L; b <- tm(count_fb(dk |> group_by(id) |> summarise(s = sum(income, na.rm = TRUE), m = max(age)) |> ungroup() |> done())); fb_b <- fb
+fb <- 0L; c <- tm(count_fb(dk |> summarise(s = sum(income, na.rm = TRUE), m = max(age), .by = id) |> done())); fb_c <- fb
 add("5 duckplyr: group_by()/ungroup() vs .by (1.8M groups)", "dplyr .by", a$secs, "reference")
 add("5 duckplyr: group_by()/ungroup() vs .by (1.8M groups)", "duckplyr group_by() |> summarise() |> ungroup()", b$secs, sprintf("%d fallback(s) to dplyr", fb_b))
 add("5 duckplyr: group_by()/ungroup() vs .by (1.8M groups)", "duckplyr summarise(.by = id)", c$secs, sprintf("%d fallback(s)", fb_c))
@@ -79,6 +81,14 @@ r_mask <- sum(logical(0)); r_len <- length(r_mask)
 set_collapse(mask = NULL)
 add("6 set_collapse(mask = 'fast-stat-fun') also replaces sum() in your own helpers", "sum(logical(0))", NA,
     sprintf("base: 0; masked: %s (length %d)", if (r_len) format(r_mask) else "integer(0)", r_len))
+
+## 8. duckplyr: collect() returns lazy columns; the work happens on first touch ----
+j <- tibble(id = d$units$id, pc = d$units$postal_code) |> duckplyr::as_duckdb_tibble()
+lk <- duckplyr::as_duckdb_tibble(d$geo)
+t_collect <- system.time(r <- j |> left_join(lk, by = c(pc = "postal_code")) |> collect())[["elapsed"]]
+t_touch   <- system.time(invisible(lapply(r, anyNA)))[["elapsed"]]
+add("8 duckplyr collect() is lazy (ALTREP): 1M-row join", "collect()", t_collect, "looks done")
+add("8 duckplyr collect() is lazy (ALTREP): 1M-row join", "first use of the columns (anyNA)", t_touch, "the query actually runs here")
 
 ## 7. arrow: median() is approximate ----
 x <- d$units |> select(prov, inc_sef)

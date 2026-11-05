@@ -104,7 +104,10 @@ to_backend <- function(df, bk, name = "t", partition_by = NULL) {
 
 # backend object -> plain tibble (always part of the timed task: downstream code wants a tibble)
 to_tibble <- function(x) {
-  if (inherits(x, c("tbl_lazy", "dtplyr_step", "multidplyr_party_df", "ArrowTabular", "arrow_dplyr_query", "duckplyr_df")))
+  # duckplyr hands back lazy ALTREP columns (DUCKDB_ALTREP_REL_VECTOR): the query only runs when a column is first
+  # touched. Touch them all here, or the timing leaves out the actual work (10M-row join: 2 s "done", +10 s on first use).
+  if (inherits(x, "duckplyr_df")) { x <- dplyr::collect(x); invisible(lapply(x, anyNA)) }
+  if (inherits(x, c("tbl_lazy", "dtplyr_step", "multidplyr_party_df", "ArrowTabular", "arrow_dplyr_query")))
     x <- dplyr::collect(x)
   if (inherits(x, c("polars_lazy_frame", "polars_data_frame"))) x <- tibble::as_tibble(x)
   if (inherits(x, "grouped_df")) x <- dplyr::ungroup(x)
