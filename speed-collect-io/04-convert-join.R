@@ -28,7 +28,9 @@ cases <- list(
   "filtering join (keep 10%) in SQL"           = \(con, n, ...) tbl(con, paste0("bm_mix_", n)) |> semi_join(tbl(con, paste0("bm_extra_", n)) |> filter(x_int < 1100000L), by = "id") |> collect(),
   "filtering join: collect() both, join in R"  = \(con, n, ...) tbl(con, paste0("bm_mix_", n)) |> collect() |> semi_join(tbl(con, paste0("bm_extra_", n)) |> collect() |> filter(x_int < 1100000L), by = "id"))
 
-res <- tidyr::expand_grid(engine = engines(), rows = c(1e6, 1e7), case = names(cases)) |>
+# 1e6 rows: collect() time is linear in rows (03), so the SQL-vs-R ratios carry over to 1e7.
+# For 1e7 as well: rows = c(1e6, 1e7) (about 10x the run time).
+res <- tidyr::expand_grid(engine = engines(), rows = 1e6, case = names(cases)) |>
   purrr::pmap(\(engine, rows, case) run_case(engine, cases[[case]], list(n = short_n(rows)),
     globals = list(to_types = to_types, spec = spec), iterations = 3, rows = rows, case = case)) |>
   purrr::list_rbind()

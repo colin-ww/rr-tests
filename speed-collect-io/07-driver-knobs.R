@@ -14,7 +14,8 @@ suppressPackageStartupMessages(library(dplyr))
 for (f in c("R/connect.R", "R/make-data.R", "R/bench.R")) source(f)
 
 collect_tbl <- \(con, name, ...) tbl(con, name) |> collect()
-tables <- c(tbl_name("int_rand", 1e7), tbl_name("dbl", 1e7), tbl_name("chr20_hi", 1e7), "bm_mix_1e7")
+# a and e on 1e6-row tables (time is linear in rows, see 03); b-d and f on 1e7 rows, where memory matters
+tables <- c(tbl_name("int_rand", 1e6), tbl_name("dbl", 1e6), tbl_name("chr20_hi", 1e6), "bm_mix_1e6")
 knobs <- dplyr::bind_rows(
   tibble(engine = "oracle", setting = c("(default)", paste0("FBS=", c(262144, 1048576, 4194304, 16777216), ";"))),
   tibble(engine = "mssql", setting = c("(default)", "PacketSize=8192;", "PacketSize=32767;")),
@@ -69,12 +70,12 @@ cases <- list(
 res_bcd <- tidyr::expand_grid(engine = engines(), case = names(cases)) |>
   filter(!(engine == "duckdb" & startsWith(case, "4 parallel"))) |>   # a duckdb file takes one process at a time
   purrr::pmap(\(engine, case) run_case(engine, cases[[case]]$fn, c(list(name = "bm_mix_1e7", engine = engine), cases[[case]]$args),
-                                       pkgs = "arrow", iterations = 3, part = "b-d. chunks, streaming, parallel", table = "bm_mix_1e7", setting = case)) |>
+                                       pkgs = "arrow", iterations = 2, part = "b-d. chunks, streaming, parallel", table = "bm_mix_1e7", setting = case)) |>
   purrr::list_rbind()
 unlink(list.files(dirname(pq), "^stream.*parquet$", full.names = TRUE))
 
 res_e <- tidyr::expand_grid(engine = intersect(engines(), c("oracle", "roracle")), nls = c("", "AMERICAN_AMERICA.AL32UTF8"),
-                            table = c(tbl_name("chr20_hi", 1e7), "bm_mix_1e7")) |>
+                            table = c(tbl_name("chr20_hi", 1e6), "bm_mix_1e6")) |>
   purrr::pmap(\(engine, nls, table) run_case(engine, collect_tbl, list(name = table), env = c(NLS_LANG = nls), iterations = 3,
                                             part = "e. Oracle NLS_LANG", table = table, setting = paste0("NLS_LANG=", if (nls == "") "(unset)" else nls))) |>
   purrr::list_rbind()
