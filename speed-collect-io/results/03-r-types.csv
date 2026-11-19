@@ -1,0 +1,48 @@
+engine,type,db_type,r_class,example
+mssql,int_zero,4,integer,0 | 0 | 0
+mssql,int_rand,4,integer,1427799 | 1855598 | 1283394
+mssql,dbl,6,numeric, 61114.14 | 122228.29 |  40484.86
+mssql,dec,3,numeric,4277.99 | 8555.98 | 2833.94
+mssql,lgl,-7,logical, TRUE | FALSE | FALSE
+mssql,chr1,12,character,J | I | E
+mssql,chr20_lo,12,character,value_00000000000009 | value_00000000000008 | value_00000000000004
+mssql,chr20_hi,12,character,value_00000000000001 | value_00000000000002 | value_00000000000003
+mssql,nchr20_hi,-9,character,value_00000000000001 | value_00000000000002 | value_00000000000003
+mssql,date,91,Date,1991-05-10 | 2012-09-15 | 1979-04-18
+mssql,dttm,93,POSIXct/POSIXt,1983-07-08 12:33:23 | 1997-01-12 01:06:46 | 1978-12-15 04:23:38
+oracle,int_zero,3,numeric,0 | 0 | 0
+oracle,int_rand,3,numeric,1832764 | 1260560 | 1688359
+oracle,dbl,8,numeric,118966.29 |  37222.86 |  98337.00
+oracle,num,6,numeric,118966.29 |  37222.86 |  98337.00
+oracle,dec,3,numeric,8327.64 | 2605.60 | 6883.59
+oracle,lgl,3,numeric,0 | 0 | 1
+oracle,lgl_bool,-7,ERROR,Failed to collect lazy table. Caused by error: ! nanodbc/nanodbc.cpp:3667: 00000 [Oracle][ODBC]Invalid SQL data type <-2
+oracle,chr1,12,character,E | A | J
+oracle,chr20_lo,12,character,value_00000000000004 | value_00000000000000 | value_00000000000009
+oracle,chr20_hi,12,character,value_00000000010002 | value_00000000010003 | value_00000000010004
+oracle,nchr20_hi,-9,character,value_00000000010002 | value_00000000010003 | value_00000000010004
+oracle,date,93,POSIXct/POSIXt,2004-12-12 | 1971-07-15 | 1992-11-20
+oracle,dttm,93,POSIXct/POSIXt,1996-04-23 13:21:48 | 1978-03-26 16:38:40 | 1991-10-01 05:12:03
+roracle,int_zero,NUMBER,numeric,0 | 0 | 0
+roracle,int_rand,NUMBER,numeric,1832764 | 1260560 | 1688359
+roracle,dbl,BINARY_DOUBLE,numeric,118966.29 |  37222.86 |  98337.00
+roracle,num,NUMBER,numeric,118966.29 |  37222.86 |  98337.00
+roracle,dec,NUMBER,numeric,8327.64 | 2605.60 | 6883.59
+roracle,lgl,NUMBER,integer,0 | 0 | 1
+roracle,lgl_bool,BOOLEAN,ERROR,"Failed to collect lazy table. Caused by error in `.valueClassTest()`: ! invalid value from generic function ‘fetch’, cla"
+roracle,chr1,VARCHAR2,character,E | A | J
+roracle,chr20_lo,VARCHAR2,character,value_00000000000004 | value_00000000000000 | value_00000000000009
+roracle,chr20_hi,VARCHAR2,character,value_00000000010002 | value_00000000010003 | value_00000000010004
+roracle,nchr20_hi,NVARCHAR2,character,value_00000000010002 | value_00000000010003 | value_00000000010004
+roracle,date,DATE,POSIXct/POSIXt,2004-12-12 | 1971-07-15 | 1992-11-20
+roracle,dttm,TIMESTAMP,POSIXct/POSIXt,1996-04-23 13:21:48 | 1978-03-26 16:38:40 | 1991-10-01 05:12:03
+duckdb,int_zero,integer,integer,0 | 0 | 0
+duckdb,int_rand,integer,integer,1427799 | 1855598 | 1283394
+duckdb,dbl,numeric,numeric, 61114.14 | 122228.29 |  40484.86
+duckdb,dec,numeric,numeric,4277.99 | 8555.98 | 2833.94
+duckdb,lgl,logical,logical, TRUE | FALSE | FALSE
+duckdb,chr1,character,character,J | I | E
+duckdb,chr20_lo,character,character,value_00000000000009 | value_00000000000008 | value_00000000000004
+duckdb,chr20_hi,character,character,value_00000000000001 | value_00000000000002 | value_00000000000003
+duckdb,date,Date,Date,1991-05-10 | 2012-09-15 | 1979-04-18
+duckdb,dttm,POSIXct,POSIXct/POSIXt,1983-07-08 12:33:23 | 1997-01-12 01:06:46 | 1978-12-15 04:23:38
