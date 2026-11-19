@@ -1,0 +1,33 @@
+engine,step,result,table,kind,med_s
+oracle,"GTT, default ON COMMIT DELETE ROWS: 1000 rows inserted, then count (same session)",0,NA,NA,NA
+oracle,"GTT, ON COMMIT PRESERVE ROWS: count, same session",1000,NA,NA,NA
+oracle,"GTT, ON COMMIT PRESERVE ROWS: count, 2nd connection",0,NA,NA,NA
+oracle,"GTT, ON COMMIT PRESERVE ROWS: count, fresh R process (callr)",0,NA,NA,NA
+oracle,GTT: CREATE GLOBAL TEMPORARY TABLE ... ON COMMIT PRESERVE ROWS AS SELECT (1e6 rows),1e+06,NA,NA,NA
+oracle,"dbplyr copy_to(temporary = TRUE): table name, count same session",3  [message: Created a temporary table named ORA$PTT_bm_tmp_copy],NA,NA,NA
+oracle,"dbplyr copy_to(temporary = TRUE): count, 2nd connection","ERROR: ORA-00942: table or view ""BENCH"".""ORA$PTT_BM_TMP_COPY"" does not exist ",NA,NA,NA
+oracle,dbplyr compute() (temporary = TRUE by default),ORA$PTT_dbplyr_tmp_IfeYSkmYDe rows: 99999  [message: Created a temporary table named ORA$PTT_dbplyr_tmp_IfeYSkmYDe],NA,NA,NA
+oracle,DBI::dbWriteTable(temporary = TRUE) via odbc: what it creates,"Y, SYS$SESSION, 3, 0",NA,NA,NA
+oracle,after disconnect + reconnect: GTT still defined? rows?,0,NA,NA,NA
+oracle,after disconnect + reconnect: private temp table (ORA$PTT_)?,"ERROR: ORA-00942: table or view ""BENCH"".""ORA$PTT_BM_TMP_COPY"" does not exist ",NA,NA,NA
+mssql,"dbplyr copy_to(temporary = TRUE): table name, count same session",3  [message: Created a temporary table named #bm_tmp_copy],NA,NA,NA
+mssql,"#local temp: count, 2nd connection",ERROR: [SQL Server]. ✖ Invalid object name '#bm_tmp_copy'. ,NA,NA,NA
+mssql,"#local temp: count, fresh R process (callr)",ERROR: [SQL Server]. ✖ Invalid object name '#bm_tmp_copy'. ,NA,NA,NA
+mssql,##global temp (SELECT INTO ##bm_g): count same session,1000000,NA,NA,NA
+mssql,"##global temp: count, 2nd connection",1000000,NA,NA,NA
+mssql,"##global temp: count, fresh R process (callr), creator still connected",1000000,NA,NA,NA
+mssql,dbplyr compute() (temporary = TRUE by default),#dbplyr_tmp_oHw9QnXNPq rows: 99999  [message: Created a temporary table named #dbplyr_tmp_oHw9QnXNPq],NA,NA,NA
+mssql,DBI::dbWriteTable(temporary = TRUE) via odbc: what it creates," 3, NA",NA,NA,NA
+mssql,"##global temp after its creator disconnected: count, 2nd connection",1000000,NA,NA,NA
+mssql,NA,NA,bm_int_rand_1e6_1,regular table,0.2515850067138672
+mssql,NA,NA,bm_int_rand_1e6_1,#local temp,0.23358845710754395
+mssql,NA,NA,bm_int_rand_1e6_1,##global temp,0.22298288345336914
+mssql,NA,NA,bm_chr20_hi_1e6_1,regular table,0.6010987758636475
+mssql,NA,NA,bm_chr20_hi_1e6_1,#local temp,0.6169712543487549
+mssql,NA,NA,bm_chr20_hi_1e6_1,##global temp,0.5253045558929443
+oracle,NA,NA,bm_int_rand_1e6_1,regular table,0.7714519500732422
+oracle,NA,NA,bm_int_rand_1e6_1,GTT (PRESERVE ROWS),0.7794797420501709
+oracle,NA,NA,bm_int_rand_1e6_1,private temp (ORA$PTT_),0.7973177433013916
+oracle,NA,NA,bm_chr20_hi_1e6_1,regular table,1.3061378002166748
+oracle,NA,NA,bm_chr20_hi_1e6_1,GTT (PRESERVE ROWS),1.3083674907684326
+oracle,NA,NA,bm_chr20_hi_1e6_1,private temp (ORA$PTT_),1.2689895629882812

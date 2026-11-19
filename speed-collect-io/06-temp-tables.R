@@ -8,7 +8,8 @@ for (f in c("R/connect.R", "R/make-data.R", "R/bench.R")) source(f)
 # run an expression, keep its value or error as one line of text
 try_txt <- \(expr) tryCatch({
   msgs <- character()
-  v <- withCallingHandlers(expr, message = \(m) { msgs <<- c(msgs, squish(conditionMessage(m))); invokeRestart("muffleMessage") })
+  v <- withCallingHandlers(expr, message = \(m) { msgs <<- c(msgs, squish(conditionMessage(m))); invokeRestart("muffleMessage") },
+                           warning = \(w) { msgs <<- c(msgs, paste("warning:", squish(conditionMessage(w)))); invokeRestart("muffleWarning") })
   paste0(if (is.data.frame(v)) paste(unlist(v), collapse = ", ") else paste(format(v), collapse = ", "),
          if (length(msgs)) paste0("  [message: ", paste(msgs, collapse = " | "), "]") else "")
 }, error = \(e) paste("ERROR:", squish(cli::ansi_strip(conditionMessage(e))) |> sub(pattern = "^.*?(ORA-\\d+[^•]*|\\[SQL Server\\][^•]*).*$", replacement = "\\1") |> substr(1, 160)))
@@ -68,8 +69,9 @@ if ("mssql" %in% engines()) {
             try_txt({ q <- tbl(a, "bm_int_rand_1e6_1") |> filter(x1 < 1100000L) |> compute(); paste(dbplyr::remote_name(q), "rows:", count(q) |> pull(n)) }))
   log_check("mssql", "DBI::dbWriteTable(temporary = TRUE) via odbc: what it creates",
             try_txt({ DBI::dbWriteTable(a, "bm_tmp_dbi", data.frame(x = 1:3), temporary = TRUE, overwrite = TRUE)
-                      c(plain_name = n_of(a, "bm_tmp_dbi"), hash_name = tryCatch(n_of(a, "#bm_tmp_dbi"), error = \(e) NA)) }))
-  DBI::dbDisconnect(a)
+                      c(plain_name = n_of(a, "bm_tmp_dbi"), hash_name = tryCatch(n_of(a, "#bm_tmp_dbi"), error = \(e) NA),
+                        rows_2nd_conn = tryCatch(n_of(b, "bm_tmp_dbi"), error = \(e) NA)) }))
+  DBI::dbDisconnect(a); Sys.sleep(1)   # the server drops it as the session closes; checking at once can still see it
   log_check("mssql", "##global temp after its creator disconnected: count, 2nd connection", try_txt(n_of(b, "##bm_g")))
   try(DBI::dbExecute(b, "DROP TABLE IF EXISTS bm_tmp_dbi"), silent = TRUE)
   DBI::dbDisconnect(b)
