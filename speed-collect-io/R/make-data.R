@@ -81,9 +81,11 @@ make_table <- \(con, engine, type, rows, k = 1, ...)
 
 # --- the grid used by 03-collect-types-rows-cols.R ---
 # 1e8 rows: int_rand, dbl (+ chr1, except on Oracle: Oracle Free's 12 GB cap; ~13 bytes/row even for 1 char)
+# BENCH_MAX_ROWS (default 1e8): e.g. 1e7 skips the 100M-row tables (~5 GB less per server)
+max_rows <- \() as.numeric(Sys.getenv("BENCH_MAX_ROWS", "1e8"))
 grid_narrow <- \(engine) tidyr::expand_grid(type = col_types$type, rows = c(1e5, 1e6, 1e7), k = 1) |>
   dplyr::bind_rows(tidyr::expand_grid(type = c("int_rand", "dbl", if (dialect_of(engine) != "oracle") "chr1"), rows = 1e8, k = 1)) |>
-  dplyr::filter(purrr::map_lgl(type, \(t) has_type(engine, t)))
+  dplyr::filter(purrr::map_lgl(type, \(t) has_type(engine, t)), rows <= max_rows())
 # wide: 1e5 x {2,10,100}, 1e6 x {2,10,100}; chr20_lo stops at 1e6 x 10 (Oracle Free's 12 GB cap)
 grid_wide <- \() tidyr::expand_grid(type = c("int_rand", "dbl", "chr20_lo"), rows = c(1e5, 1e6), k = c(2, 10, 100)) |>
   dplyr::filter(!(type == "chr20_lo" & rows == 1e6 & k == 100))

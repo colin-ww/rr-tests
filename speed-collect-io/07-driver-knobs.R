@@ -10,8 +10,12 @@
 #  f. R's garbage collector at start-up (env vars read when R starts): the first big collect() in a
 #     fresh process spends a lot of time in GC while R's heap grows. R_GC_MEM_GROW=3 grows it faster;
 #     R_NSIZE / R_VSIZE set the starting GC triggers (not memory reserved up front). Look at first_s.
+# BENCH_PARTS = "a,b,e,f" (b = b-d) runs only those parts, BENCH_CASE = regex on the setting/case name.
+# Re-run rows replace the matching rows of an existing results/07-driver-knobs.csv.
 suppressPackageStartupMessages(library(dplyr))
 for (f in c("R/connect.R", "R/make-data.R", "R/bench.R")) source(f)
+want <- \(p) p %in% strsplit(Sys.getenv("BENCH_PARTS", "a,b,e,f"), ",")[[1]]
+case_ok <- \(x) grepl(Sys.getenv("BENCH_CASE", ""), x)
 
 collect_tbl <- \(con, name, ...) tbl(con, name) |> collect()
 # a and e on 1e6-row tables (time is linear in rows, see 03); b-d and f on 1e7 rows, where memory matters
@@ -23,7 +27,7 @@ knobs <- dplyr::bind_rows(
   mutate(extra = if_else(engine != "roracle" & setting != "(default)", setting, ""),
          con_args = purrr::map2(engine, setting, \(e, st) if (e == "roracle" && st != "(default)")
            eval(str2lang(paste0("list(", st, ")"))) else list())) |>
-  filter(engine %in% engines())
+  filter(engine %in% engines(), want("a"), case_ok(setting))
 res_a <- tidyr::expand_grid(knobs, table = tables) |>
   purrr::pmap(\(engine, setting, extra, con_args, table) run_case(engine, collect_tbl, list(name = table), extra = extra, con_args = con_args,
                                                               iterations = 3, part = "a. buffer size", table = table, setting = setting)) |>
@@ -41,7 +45,10 @@ stream_parquet <- \(con, name, n, file, ...) {
   w <- NULL
   while (!DBI::dbHasCompleted(rs)) {
     tab <- arrow::arrow_table(DBI::dbFetch(rs, n = n))
-    if (is.null(w)) { sink <- arrow::FileOutputStream$create(file); w <- arrow::ParquetFileWriter$create(tab$schema, sink) }
+    if (is.null(w)) {   # NB arrow 26: the default `properties =` errors (column_names missing), so pass it
+      sink <- arrow::FileOutputStream$create(file)
+      w <- arrow::ParquetFileWriter$create(tab$schema, sink, properties = arrow::ParquetWriterProperties$create(names(tab)))
+    }
     w$WriteTable(tab, chunk_size = n)
   }
   w$Close(); sink$close(); file.size(file) / 1e6
@@ -68,7 +75,7 @@ cases <- list(
   "stream 1e6-row chunks into one parquet file" = list(fn = stream_parquet, args = list(n = 1e6, file = pq)),
   "4 parallel connections, 1 parquet part each (incl. R start-up)" = list(fn = parallel_parts, args = list(file = pq)))
 res_bcd <- tidyr::expand_grid(engine = engines(), case = names(cases)) |>
-  filter(!(engine == "duckdb" & startsWith(case, "4 parallel"))) |>   # a duckdb file takes one process at a time
+  filter(!(engine == "duckdb" & startsWith(case, "4 parallel")), want("b"), case_ok(case)) |>   # a duckdb file: one process at a time
   purrr::pmap(\(engine, case) run_case(engine, cases[[case]]$fn, c(list(name = "bm_mix_1e7", engine = engine), cases[[case]]$args),
                                        pkgs = "arrow", iterations = 2, part = "b-d. chunks, streaming, parallel", table = "bm_mix_1e7", setting = case)) |>
   purrr::list_rbind()
@@ -76,13 +83,18 @@ unlink(list.files(dirname(pq), "^stream.*parquet$", full.names = TRUE))
 
 res_e <- tidyr::expand_grid(engine = intersect(engines(), c("oracle", "roracle")), nls = c("", "AMERICAN_AMERICA.AL32UTF8"),
                             table = c(tbl_name("chr20_hi", 1e6), "bm_mix_1e6")) |>
+  filter(want("e"), case_ok(nls)) |>
   purrr::pmap(\(engine, nls, table) run_case(engine, collect_tbl, list(name = table), env = c(NLS_LANG = nls), iterations = 3,
                                             part = "e. Oracle NLS_LANG", table = table, setting = paste0("NLS_LANG=", if (nls == "") "(unset)" else nls))) |>
   purrr::list_rbind()
 gc_env <- list("(default)" = character(), "R_GC_MEM_GROW=3" = c(R_GC_MEM_GROW = "3"),
                "R_NSIZE=2e7, R_VSIZE=4G" = c(R_NSIZE = "20000000", R_VSIZE = "4G"))
 res_f <- tidyr::expand_grid(engine = engines(), setting = names(gc_env), table = c(tbl_name("chr20_hi", 1e7), "bm_mix_1e7")) |>
+  filter(want("f"), case_ok(setting)) |>
   purrr::pmap(\(engine, setting, table) run_case(engine, collect_tbl, list(name = table), env = gc_env[[setting]], iterations = 1,
                                                 part = "f. R GC start-up settings", table = table, setting = setting)) |>
   purrr::list_rbind()
-bind_rows(res_a, res_bcd, res_e, res_f) |> save_results("07-driver-knobs.csv")
+new <- bind_rows(res_a, res_bcd, res_e, res_f)
+old <- if (file.exists("results/07-driver-knobs.csv")) readr::read_csv("results/07-driver-knobs.csv", show_col_types = FALSE) |>
+  anti_join(new, by = c("engine", "part", "table", "setting"))
+bind_rows(old, new) |> save_results("07-driver-knobs.csv")
