@@ -1,7 +1,8 @@
 # Part 5: after collect(), write the data to a file and read it back. Which format?
 # Data: bm_mix_<n> collected from duckdb (10 typed columns, same values as on the servers), and two
 # 1-column tables (all zeros / random 1-2 million) to see what compressibility does.
-# Files go to BENCH_DIR/io: at StatCan run it once per disk (home PVC, /tmp, the filers).
+# Files go to BENCH_IO_DIR (default BENCH_DIR/io): at StatCan run it once per disk (home PVC, /tmp, the filers).
+# The data comes from the duckdb file in BENCH_DIR, so leave BENCH_DIR where 00-setup-tables.R put it.
 # Per format: write_s, read_s (file in the OS page cache: "warm"), read_cold_s (file evicted from the
 # page cache first with `dd iflag=nocache count=0`, no root needed), file size, which column types survive.
 # Reads are timed until every value is a real R vector: arrow (and vroom) hand back lazy (ALTREP) text
@@ -34,7 +35,7 @@ fmts <- tibble::tribble(
   "csv.gz data.table",      "csv.gz",   \(d, f) data.table::fwrite(d, f, compress = "gzip"),         \(f) data.table::fread(f))
 
 datasets <- c(mix_1e6 = "bm_mix_1e6", mix_1e7 = "bm_mix_1e7", int_zero_1e7 = "bm_int_zero_1e7_1", int_rand_1e7 = "bm_int_rand_1e7_1")
-io_dir <- fs::dir_create(file.path(bench_dir(), "io"))
+io_dir <- fs::dir_create(Sys.getenv("BENCH_IO_DIR", file.path(bench_dir(), "io")))
 
 load_data <- \(con, table, ...) {
   d <- bench_con("duckdb"); on.exit(DBI::dbDisconnect(d))

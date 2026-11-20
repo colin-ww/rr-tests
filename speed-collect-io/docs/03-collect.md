@@ -1,15 +1,16 @@
 # collect() by column type × rows × columns
 
-Script: `03-collect-types-rows-cols.R` → `results/03-collect.csv`, `results/03-r-types.csv`. Every case is `tbl(con, "bm_<type>_<rows>_<k>") |> collect()` in a fresh R process: the median of 2 to 5 calls after one warm-up (see [00-method.md](00-method.md)).
+Scripts: `03-collect-types-rows-cols.R` → `results/03-collect.csv`, `results/03-r-types.csv`; `03-collect-string-order.R` → `results/03-string-order.csv`. Every case is `tbl(con, "bm_<type>_<rows>_<k>") |> collect()` in a fresh R process: the median of 2 to 5 calls after one warm-up (see [00-method.md](00-method.md)).
 
 ![collect time by type](../results/03-collect-by-type.png)
 
 ## Short version
 
-- **Time grows in a straight line with rows**, for every type and engine: 10× the rows takes 10× the time, from 100k to 100M. There's no cliff (as long as it fits in RAM).
+- **Time grows in a straight line with rows**, for every type and engine: 10× the rows takes 10× the time, from 100k to 100M. There's no cliff (as long as it fits in RAM). The exception is unique text in random order: from 1M to 10M rows, that took 14 to 27 times as long ([below](#unique-text-the-order-of-the-rows-matters)).
 - **Rows cost more than values.** The odbc package fetches one row per ODBC call. So 1 column × 10M rows is the slowest way to move 10M values: as 100k rows × 100 columns it's **2 to 3 times faster** (table below).
 - **Numbers all cost about the same.** int, double and logical are within ±10% of each other on every engine. **All-zeros vs random 1-2 million: no difference** for collect (it does matter for file sizes, see 05).
 - **Text is the expensive type.** Unique 20-character strings cost 2 to 3 times as much as an int. Half of that is R itself creating 10M strings: duckdb, with no driver, still needs 3.6 s.
+- **And that's the best case: the test's unique strings arrive in sequence** (`value_00000000000001`, `…02`, …). **The same 10M strings in random order took 2.5× as long on SQL Server (17.0 s instead of 6.8 s) and 3× on ROracle.** It added ~9-10 s per 10M strings on every engine, so it's R's side, not the driver's. Names, addresses and unsorted text IDs are the random case: **budget about 1.3 µs per unique string for R's part** (2 µs on the first call in a fresh session), plus the driver's.
 - **Few distinct values is cheaper than unique values** (`chr20_lo` vs `chr20_hi`). R keeps one copy of each distinct string, so 10 distinct values in 10M rows means 10 strings plus 10M pointers.
 - **The driver matters more than the type:**
   - Oracle via **odbc is ~3× slower than SQL Server via odbc** per row.
@@ -46,8 +47,9 @@ Script: `03-collect-types-rows-cols.R` → `results/03-collect.csv`, `results/03
 | Oracle NUMBER (unconstrained) | - | 9.64 (1.4) | 2.83 (1.1) | - |
 | text, 1 char, 10 values | 3.20 (1.4) | 6.85 (1.0) | 3.19 (1.2) | 0.37 |
 | text, 20 chars, 10 values | 4.08 (1.8) | 11.30 (1.6) | 3.28 (1.2) | 0.98 |
-| text, 20 chars, all unique | 6.98 (3.0) | 14.21 (2.0) | 4.93 (1.9) | 3.60 |
-| NVARCHAR, 20 chars, unique | 7.50 (3.2) | 19.27 (2.7) | 5.43 (2.1) | - |
+| text, 20 chars, all unique (in sequence) | 6.98 (3.0) | 14.21 (2.0) | 4.93 (1.9) | 3.60 |
+| *same, in random order (`03-string-order.csv`)* | *16.96 (7.3)* | *24.46 (3.4)* | *13.70 (5.2)* | *12.60* |
+| NVARCHAR, 20 chars, unique (in sequence) | 7.50 (3.2) | 19.27 (2.7) | 5.43 (2.1) | - |
 | date | 2.90 (1.3) | 6.49 (0.9) | **8.29 (3.2)** | 0.12 |
 | timestamp | 3.28 (1.4) | 6.86 (1.0) | **8.08 (3.1)** | 0.16 |
 
@@ -91,6 +93,29 @@ Nanoseconds per value. Wide tables flatten out at about 95 (SQL Server), 310 (Or
 
 At 100M doubles (800 MB) the peak grew by 1.5 GB (odbc, ROracle) to 2.2 GB (duckdb). That is the number to compare with your pod's memory limit.
 
+## Unique text: the order of the rows matters
+
+The generated unique strings are `value_00000000000001`, `value_00000000000002`, … in row order. `03-collect-string-order.R` copies the same tables with the rows shuffled on the server (checked on the first 100k rows: in the copy, 0% of neighbouring rows are consecutive; in the original, 100%) and collects both.
+
+Median seconds (first call in a fresh process in brackets), 1 column of unique 20-character text:
+
+| rows | order | SQL Server | Oracle odbc | ROracle | duckdb |
+|---|---|---|---|---|---|
+| 1M | in sequence | 0.57 (1.1) | 1.34 (1.8) | 0.39 (0.8) | 0.20 (0.6) |
+| | random | 0.93 (1.4) | 1.76 (2.3) | 0.65 (1.1) | 0.47 (0.9) |
+| 10M | in sequence | 6.77 (13.2) | 14.71 (21.0) | 4.59 (10.5) | 3.06 (8.6) |
+| | **random** | **16.96 (28.1)** | **24.46 (36.5)** | **13.70 (22.0)** | **12.60 (19.9)** |
+
+- Random order added 9 to 10 s per 10M strings on every engine (duckdb, with no driver at all: +9.5 s), and 0.3-0.4 s per 1M. Same values, same bytes over the wire, same result size (880 MB), so it's R.
+- **Most likely cause: R's global string table.** R stores each distinct string once, in one big hash table, and looks every incoming string up there. R's string hash (djb2) gives strings that differ by 1 in the last character hashes that differ by 1. So a run of `…01`, `…02`, `…03` fills neighbouring slots, which is fast for the CPU cache. In random order, every new string goes to a random spot in a table much bigger than the cache. That's slower the bigger the table gets, so 10× the rows cost 14-27× the time.
+- **About half the extra is garbage collection** (SQL Server, 10M: GC 2.0 s in sequence vs 6.6 s random). R's GC also walks that table.
+- **What it means for you:**
+  - Zero-padded text IDs in ID order (`S000001`, `S000002`, …) are the cheap case. Names, addresses and postal codes, or IDs in any other order, are the expensive case.
+  - **An ID that's really a number is ~7× cheaper as a number** (SQL Server: 2.3 s for 10M ints vs 17 s for 10M random-order strings). Cast it in SQL if it has no leading zeros, or keep it as text only if it must be.
+  - Don't `collect()` unique text columns you don't need. If one is only there to join on, do the join on the server (04).
+  - Text with few distinct values (codes, provinces, `chr20_lo`) isn't affected: R makes each distinct string only once.
+- The same thing showed up in part 05: `readRDS()` of the 10-column table took 6.9 s with rows in sequence vs 15.8 s shuffled. So 05 shuffles its rows.
+
 ## The first collect in a fresh R session
 
-For most types, the first call in a fresh process was within 5 to 40% of the later ones. For **10M unique strings, the first call took 1.9 to 2.4× as long** (SQL Server 13.2 s vs 7.0 s; ROracle 10.9 vs 4.9; duckdb 8.8 vs 3.6). Of the extra ~6 s, ~4.7 s was R's garbage collector running again and again while the heap grew to hold 10M new strings. In a scheduled job that pulls one big table, that first number is the one you'll see. [07](07-driver-knobs.md) part f tests R's start-up GC settings for it.
+For most types, the first call in a fresh process was within 5 to 40% of the later ones. For **10M unique strings, the first call took 1.9 to 2.4× as long** (SQL Server 13.2 s vs 7.0 s; ROracle 10.9 vs 4.9; duckdb 8.8 vs 3.6). In random order: 28 s on SQL Server, 36 s on Oracle odbc. Of the extra ~6 s, ~4.7 s was R's garbage collector running again and again while the heap grew to hold 10M new strings. In a scheduled job that pulls one big table, that first number is the one you'll see. [07](07-driver-knobs.md) part f tests R's start-up GC settings for it.

@@ -20,7 +20,8 @@ BENCH_MSSQL="Driver={ODBC Driver 18 for SQL Server};Server=myhost,1433;Database=
 BENCH_ORACLE="Driver={Oracle 21 ODBC driver};DBQ=myhost:1521/myservice;UID=me;PWD=..."   # or DSN=...
 BENCH_RORACLE="username=me;password=...;dbname=myhost:1521/myservice"                    # only if ROracle is installed
 NLS_LANG=AMERICAN_AMERICA.AL32UTF8      # Oracle: without it, accents are lost (see 07)
-BENCH_DIR=/home/jovyan/bench-data       # duckdb file + part 05's files: point at the disk you want to test
+BENCH_DIR=/home/jovyan/bench-data       # the duckdb file (the in-process engine's copy of the tables)
+BENCH_IO_DIR=/tmp/bench-io              # where part 05 writes its files: the disk you want to test
 BENCH_ENGINES=mssql,oracle,duckdb       # optional: run only these
 BENCH_MAX_ROWS=1e7                      # optional: skip the 100M-row tables (~5 GB less per server)
 ```
@@ -47,5 +48,5 @@ Rscript 03-collect-types-rows-cols.R && Rscript build-report.R
 ```
 
 - It took ~3 hours here with 4 engines. 03 (the type × rows × columns grid) is the longest.
-- Part 05 (files) doesn't touch the servers. Run it once per disk you care about: `BENCH_DIR=/tmp/x Rscript 05-io-formats.R`, then again with BENCH_DIR on the filers and on your home volume.
+- Part 05 (files) doesn't touch the servers. Run it once per disk you care about: `BENCH_IO_DIR=/tmp/x Rscript 05-io-formats.R`, then again with `BENCH_IO_DIR` on the filers and on your home volume. Leave `BENCH_DIR` alone: 05 reads its data from the duckdb file there. Each run overwrites `results/05-io.csv`, so copy it away in between.
 - In k8s, R sees the node's cores, not your pod's CPU limit. If your pod has a 4-CPU limit, the `qs2 (4 threads)` case is fair. Arrow and data.table default to all the cores they can see.

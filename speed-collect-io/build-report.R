@@ -70,7 +70,7 @@ if (!is.null(co)) {
     scale_y_log10(labels = \(x) paste0(x, " s")) + facet_wrap(~type, ncol = 4) +
     scale_colour_manual(values = eng_col, labels = eng_lab, name = NULL) +
     labs(title = "collect() time by column type: 1 column, 100k to 100M rows", x = "rows (log scale)", y = "median seconds (log scale)",
-         caption = "Sandbox: database on the same machine (no network). Absolute times will differ on your servers; compare the shapes.") +
+         caption = "Sandbox: database on the same machine (no network). Absolute times will differ on your servers; compare the shapes.\nUnique text here arrives in sequence (value_01, value_02, ...): the best case. In random order, 10M took 1.7-4x as long (03-string-order.csv).") +
     theme_bm + theme(panel.spacing = unit(1.1, "lines"))
   ggsave("results/03-collect-by-type.png", p, width = 11, height = 8, dpi = 150, bg = "#fcfcfb")
   p2 <- co |> filter(type %in% c("int_rand", "dbl", "chr20_lo"), rows == 1e6, !is.na(ns_per_cell)) |>
@@ -83,6 +83,10 @@ if (!is.null(co)) {
     theme_bm + theme(panel.spacing = unit(1.1, "lines"))
   ggsave("results/03-rows-vs-columns.png", p2, width = 11, height = 4.2, dpi = 150, bg = "#fcfcfb")
 }
+so <- rd("03-string-order.csv")
+if (!is.null(so)) out <- c(out, "### Unique text in row order vs shuffled (median s; first call in brackets)", "",
+  so |> transmute(rows = format(rows, scientific = TRUE), engine, order, v = paste0(s(med_s), " (", s(first_s), ")")) |>
+    pivot_wider(names_from = order, values_from = v) |> md_table())
 
 # --- 04 convert / join ---
 cj <- rd("04-convert-join.csv")
@@ -98,11 +102,21 @@ if (!is.null(io)) {
   out <- c(out, "## 05 Write / read file formats", "",
            w |> transmute(dataset, format, write_s = s(write), read_warm_s = s(`read (warm cache)`), read_cold_s = s(`read (cold cache)`),
                           size_mb = round(size_mb, 1), types_changed) |> md_table())
-  p <- io |> filter(dataset == "mix_1e7") |> mutate(step = factor(step, c("write", "read (warm cache)", "read (cold cache)"))) |>
-    ggplot(aes(med_s, reorder(format, -med_s))) + geom_col(width = 0.6, fill = "#2a78d6") +
-    facet_wrap(~step, nrow = 1) + labs(title = "Write and read times, 10M rows x 10 columns (bm_mix_1e7)", x = "median seconds", y = NULL,
-                                       caption = "Local disk in the sandbox. Run 05 on your own disks (home, /tmp, filers): that's where the differences show.") + theme_bm
-  ggsave("results/05-io.png", p, width = 11, height = 5, dpi = 150, bg = "#fcfcfb")
+  # cold = warm on this disk (2 GB/s), so the chart shows write, warm read and file size
+  m7 <- io |> filter(dataset == "mix_1e7")
+  ord <- m7 |> filter(step == "write") |> arrange(desc(med_s)) |> pull(format)
+  pick <- c("qs2 (4 threads)", "parquet arrow (zstd)")
+  p <- m7 |> filter(step != "read (cold cache)") |> transmute(format, metric = if_else(step == "write", "write (s)", "read (s)"), value = med_s) |>
+    bind_rows(m7 |> distinct(format, value = size_mb) |> mutate(metric = "file size (MB)")) |>
+    mutate(metric = factor(metric, c("write (s)", "read (s)", "file size (MB)")), format = factor(format, ord), pick = format %in% pick) |>
+    ggplot(aes(value, format, fill = pick)) + geom_col(width = 0.65) +
+    geom_text(aes(label = ifelse(value < 10, sprintf("%.1f", value), sprintf("%.0f", value))), hjust = -0.15, size = 3, colour = "#52514e") +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.18))) + scale_fill_manual(values = c(`TRUE` = "#2a78d6", `FALSE` = "#b9b7b1"), guide = "none") +
+    facet_wrap(~metric, nrow = 1, scales = "free_x") +
+    labs(title = "Write, read and file size: 10M rows x 10 columns, 1.5 GB in R (bm_mix_1e7, rows shuffled)", x = NULL, y = NULL,
+         caption = "Median of 3, fresh R process. Blue: the two picks (qs2 for R-only, parquet zstd to share). Local SSD: cold and warm reads were the same.\nRun 05 on your own disks (home, /tmp, filers): there, file size turns into read time.") +
+    theme_bm + theme(panel.grid.major.y = element_blank(), panel.spacing = unit(1.4, "lines"))
+  ggsave("results/05-io.png", p, width = 11, height = 5.2, dpi = 150, bg = "#fcfcfb")
 }
 
 # --- 06 temp tables, 07 knobs ---

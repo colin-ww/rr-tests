@@ -8,8 +8,9 @@
 # Oracle (odbc and ROracle): set NLS_LANG=AMERICAN_AMERICA.AL32UTF8 (in ~/.Renviron). Without it the
 #   Instant Client converts text to ASCII: odbc returns "Quebec" for 'Québec', ROracle "Qu??bec".
 # duckdb (in-process: no driver, no network) is always on. It is the floor: what R itself costs.
-# BENCH_DIR = folder for the duckdb file and the files written in part 04 (default ./bench-data).
-#   At StatCan point it at the disk you want to test: home PVC, /tmp (pod-local), the filers.
+# BENCH_DIR = folder for the duckdb file (default ./bench-data).
+# BENCH_IO_DIR = where part 05 writes its files (default BENCH_DIR/io). At StatCan run 05 once per disk you
+#   care about: home PVC, /tmp (pod-local), the filers.
 
 bench_dir <- \() Sys.getenv("BENCH_DIR", "bench-data") |> fs::dir_create()
 
