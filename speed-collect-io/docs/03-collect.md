@@ -61,6 +61,8 @@ At 100M rows (1 column): SQL Server int 21 s, double 24 s, 1-char text 30 s. Ora
 | 1M rows × 10 columns | 1.22 | 3.44 | 1.03 | 0.08 |
 | 100k rows × 100 columns | 1.04 | 3.23 | 0.80 | 0.08 |
 
+![rows vs columns](../results/03-rows-vs-columns.png)
+
 Nanoseconds per value. Wide tables flatten out at about 95 (SQL Server), 310 (Oracle odbc) and 70 (ROracle):
 
 | table | columns | SQL Server | Oracle odbc | ROracle | duckdb |

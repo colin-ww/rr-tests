@@ -68,7 +68,7 @@ Every number here comes from a script in this folder. The CSVs are in `results/`
 
 ## Versions
 
-R 4.6.2 · dplyr · dbplyr 2.6.0 · DBI · odbc 1.7.2 · ROracle 1.5-1 · duckdb · bench 1.1.4 · callr · arrow 26.0.1 · nanoparquet 0.5.2 · qs2 0.4.0 · data.table 1.18.6.1 · readr 2.2.0 (all exact versions: [results/versions.md](results/versions.md)). Servers: SQL Server 2022 Developer 16.0.4325.4 (CU28), Oracle AI Database 26ai Free 23.26.4. Drivers: Microsoft ODBC Driver 18.7.1.1 for SQL Server, Oracle Instant Client 23.26.4 (ODBC + OCI), unixODBC 2.3.12.
+R 4.6.2 · dplyr 1.2.1 · dbplyr 2.6.0 · DBI 1.3.0 · odbc 1.7.2 · ROracle 1.5-1 · duckdb 2.0.0 · bench 1.1.4 · callr 3.8.0 · lobstr 1.2.2 · arrow 26.0.1 · nanoparquet 0.5.2 · qs2 0.4.0 · data.table 1.18.6.1 · readr 2.2.0 · vroom 1.7.1 ([results/versions.md](results/versions.md)). Servers: SQL Server 2022 Developer 16.0.4325.4 (CU28), Oracle AI Database 26ai Free 23.26.4. Drivers: Microsoft ODBC Driver 18.7.1.1 for SQL Server, Oracle Instant Client 23.26.4 (ODBC + OCI), unixODBC 2.3.12.
 
 ## Not covered
 
