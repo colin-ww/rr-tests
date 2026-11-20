@@ -33,10 +33,12 @@ Notes:
 
 | server | table | normal | temp 1 | temp 2 |
 |---|---|---|---|---|
-| SQL Server | int | 0.252 | `#local` 0.234 | `##global` 0.223 |
-| SQL Server | unique text | 0.601 | `#local` 0.617 | `##global` 0.525 |
-| Oracle odbc | int | 0.771 | GTT 0.779 | `ORA$PTT_` 0.797 |
-| Oracle odbc | unique text | 1.31 | GTT 1.31 | `ORA$PTT_` 1.27 |
+| SQL Server | int | 0.192 | `#local` 0.182 | `##global` 0.182 |
+| SQL Server | unique text | 0.528 | `#local` 0.471 | `##global` 0.513 |
+| Oracle odbc | int | 0.581 | GTT 0.580 | `ORA$PTT_` 0.587 |
+| Oracle odbc | unique text | 1.07 | GTT 1.08 | `ORA$PTT_` 1.07 |
+
+(An earlier run of the same script, right after part 04, gave 20-25% higher numbers for every row, temp or not. Compare numbers within one run, not across runs; see [00-method.md](00-method.md#caches-and-noise-what-can-bias-a-collect-timing).)
 
 ## What this means for pipelines (not only benchmarks)
 

@@ -83,4 +83,5 @@ Scripts: `R/bench.R` (the harness) and `01-method.R` → `results/01-method.csv`
 | database | other users' load on a shared server | n/a (private containers) | **the big one.** Repeat at different times of day, compare medians, look at min/max. |
 | network | shared bandwidth and latency between the server and your pod | n/a (same machine) | the other big one. Everything here ran over localhost, so the network cost is ~0. |
 | OS | page cache: a file you just wrote is read back from RAM | part 05 evicts it first (`dd if=file iflag=nocache count=0`, no root needed) | on the filers (SMB/NFS) caching differs again; run 05 there |
+| all | run-to-run drift: the same script on the same idle machine gave 20-25% lower times on a second run (06), for every case alike | compare cases **within one run**; the ratios held, the absolute numbers moved | expect more on shared servers |
 | CPU | the database and R on the same 4 cores here | n/a | in k8s, R may see the node's cores, not your pod's limit: multi-threaded readers/writers (arrow, data.table, vroom, qs2) can oversubscribe. Set their thread counts to your pod's CPU limit. |

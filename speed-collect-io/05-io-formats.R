@@ -4,12 +4,18 @@
 # Files go to BENCH_DIR/io: at StatCan run it once per disk (home PVC, /tmp, the filers).
 # Per format: write_s, read_s (file in the OS page cache: "warm"), read_cold_s (file evicted from the
 # page cache first with `dd iflag=nocache count=0`, no root needed), file size, which column types survive.
-# Reads are timed until every value is a real R vector: arrow and vroom can hand back lazy (ALTREP)
-# columns that are only filled in when touched, so `touch()` forces that inside the timing.
+# Reads are timed until every value is a real R vector: arrow (and vroom) hand back lazy (ALTREP) text
+# columns whose strings are only made when touched. read_parquet() of bm_mix_1e6 "took" 0.08 s that
+# way, 0.30 s once the strings exist. `touch()` makes them inside the timing (text columns only: numbers
+# are real either way, and touching them would only add a copy).
+# Rows are shuffled first (set.seed(42)): the generator's values follow a regular sequence in row
+# order, which compressing formats exploit far beyond real data (qs2: 1.5 MB instead of 25 MB for
+# 10M ints in row order vs shuffled). Collect timings (03) don't care: ODBC doesn't compress.
 suppressPackageStartupMessages(library(dplyr))
 for (f in c("R/connect.R", "R/make-data.R", "R/bench.R")) source(f)
 
-spec <- readr::cols(id = "i", age = "i", income = "d", wgt = "d", ref_date = "D", flag = "l", amount = "d", .default = "c")
+spec_mix <- readr::cols(id = "i", age = "i", income = "d", wgt = "d", ref_date = "D", flag = "l", amount = "d", .default = "c")
+spec_int <- readr::cols(x1 = "i")
 fmts <- tibble::tribble(
   ~format,                  ~ext,       ~write,                                                     ~read,
   "rds (gzip, default)",    "rds",      \(d, f) saveRDS(d, f),                                       \(f) readRDS(f),
@@ -30,8 +36,11 @@ fmts <- tibble::tribble(
 datasets <- c(mix_1e6 = "bm_mix_1e6", mix_1e7 = "bm_mix_1e7", int_zero_1e7 = "bm_int_zero_1e7_1", int_rand_1e7 = "bm_int_rand_1e7_1")
 io_dir <- fs::dir_create(file.path(bench_dir(), "io"))
 
-load_data <- \(con, table, ...) { d <- bench_con("duckdb"); on.exit(DBI::dbDisconnect(d)); tbl(d, table) |> collect() }
-touch <- \(d) { for (j in seq_along(d)) d[[j]] <- d[[j]][seq_len(nrow(d))]; d }
+load_data <- \(con, table, ...) {
+  d <- bench_con("duckdb"); on.exit(DBI::dbDisconnect(d))
+  set.seed(42); tbl(d, table) |> collect() |> slice_sample(prop = 1)
+}
+touch <- \(d) { for (j in which(purrr::map_lgl(d, is.character))) d[[j]] <- d[[j]][seq_len(nrow(d))]; d }
 evict <- \(con, file, ...) invisible(system2("dd", c(paste0("if=", file), "iflag=nocache", "count=0", "status=none")))
 class1 <- \(d) purrr::map_chr(d, \(v) class(v)[1])
 
@@ -39,7 +48,7 @@ res <- purrr::imap(datasets, \(table, ds) {
   orig <- load_data(NULL, table) |> class1()
   purrr::pmap(fmts, \(format, ext, write, read) {
     file <- file.path(io_dir, paste0(ds, "-", gsub("\\W+", "_", format), ".", ext))
-    g <- list(write = write, read = read, touch = touch, spec = spec)
+    g <- list(write = write, read = read, touch = touch, spec = if (startsWith(ds, "mix")) spec_mix else spec_int)
     w <- run_case("none", \(con, data, file, table) write(data, file), list(file = file, table = table), setup = load_data,
                   globals = g, iterations = 3, dataset = ds, format = format, step = "write")
     if (!file.exists(file)) return(w)
@@ -48,7 +57,7 @@ res <- purrr::imap(datasets, \(table, ds) {
                        iterations = 3, dataset = ds, format = format, step = "read (warm cache)")
     r_cold <- run_case("none", \(con, file, table) touch(read(file)), list(file = file, table = table), globals = g,
                        before = evict, iterations = 3, dataset = ds, format = format, step = "read (cold cache)")
-    got <- class1(read(file))
+    assign("spec", g$spec, envir = globalenv()); got <- class1(read(file))   # the readers look up `spec` globally
     lost <- names(orig)[orig != got[names(orig)]]
     unlink(file)
     bind_rows(w, r_warm, r_cold) |>

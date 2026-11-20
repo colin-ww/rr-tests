@@ -9,6 +9,7 @@ Script: `07-driver-knobs.R` → `results/07-driver-knobs.csv`. Parts a and e use
   - **ROracle `prefetch = TRUE` is a trap:** **2× slower** here. Leave it at `FALSE`.
   - **Oracle odbc: `FBS=1048576;` in the connection string.** That's the fetch buffer size in bytes, default 64000. Numbers 25-30% faster, the survey table ~30% (35% at 16 MB).
   - SQL Server `PacketSize=32767;`: no difference here. But here the server is on localhost. On a real network a bigger packet means fewer round trips, so **try it on your servers**. It's the one result I'd expect to change.
+- **Streaming chunks straight into a parquet file** (never holding the whole table): **~85% less memory** (SQL Server 0.4 GB instead of 2.7 GB for 10M × 10 columns) and 15% faster than `collect()` + `write_parquet()`.
 - **Fetching in chunks** (`dbSendQuery()` + `dbFetch(n)` + `bind_rows()`) is **not faster**. Peak memory was ~9% lower with odbc and higher with ROracle and duckdb, because you still hold all the chunks.
 - **4 parallel connections**, each pulling a quarter of the rows (`filter(id > lo, id <= hi)`) and writing its own parquet part: **2 to 2.6 times faster** than one `collect()` + `write_parquet()`. That's with the database on the same 4 cores. Ask your DBA before you point 4 sessions at a shared server.
 - **Oracle `NLS_LANG`: set it to `AMERICAN_AMERICA.AL32UTF8`.** Without it, accented text is silently converted to ASCII: odbc gives `Quebec Montreal` for 'Québec Montréal', ROracle `Qu??bec Montr??al`. Being correct costs odbc 10-22% on text-heavy tables. ROracle: no difference.
@@ -43,9 +44,10 @@ Script: `07-driver-knobs.R` → `results/07-driver-knobs.csv`. Parts a and e use
 | `dbFetch(n = 1e5)` chunks + `bind_rows()` | 21.4 (2088) | 35.9 (2319) | 16.4 (2311) | 7.6 (3091) |
 | `dbFetch(n = 1e6)` chunks + `bind_rows()` | 21.3 (2088) | 38.3 (2319) | 16.1 (2349) | 7.2 (3096) |
 | `collect()` then `arrow::write_parquet()` | 29.5 (2744) | 44.4 (3048) | 22.2 (2457) | 10.5 (2729) |
-| stream 1e6-row chunks into one parquet file | <!-- STREAM --> | | | |
+| **stream 1e6-row chunks into one parquet file** | **24.6 (424)** | **38.0 (447)** | **18.9 (379)** | 11.8 (2728) |
 | 4 parallel connections, 1 parquet part each | **14.9** | **16.8** | **9.4** | - |
 
+- **Streaming** (`dbSendQuery()`, then `dbFetch(n = 1e6)` → `arrow::arrow_table()` → `ParquetFileWriter$WriteTable()` in a loop, code in the script) needed **~1/6 of the memory** of collect-then-write, and was 15 to 17% faster. It's the way to pull a table bigger than your pod's memory into a file. duckdb's `dbSendQuery()` materializes the whole result first, so there it saves nothing.
 - The R result is 1.5 to 1.6 GB (`id` and `age` are doubles on Oracle). The peak grew by 1.4 to 2× that.
 - The parallel row's time includes starting 4 R processes (~1 s). Its peak is the parent's only (~20 MB): each worker holds its own quarter, so the memory is spread over 4 processes, not saved.
 - duckdb can't do the parallel case: a duckdb file is opened by one process at a time.
