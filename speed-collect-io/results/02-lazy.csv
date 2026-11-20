@@ -1,0 +1,25 @@
+engine,what,median_ms,mem_alloc_kb,sql,age_class
+mssql,"tbl(con, name)",5.968609533738345,32.640625,NA,NA
+mssql,lazy |> mutate(age = age + 1L),6.1138111632317305,2241.9140625,NA,NA
+mssql,lazy |> mutate(...) |> sql_render(),25.616517523303628,2393.1796875,NA,NA
+mssql,age (as stored),NA,NA,SELECT * FROM [bm_mix_1e6],integer
+mssql,age + 1L,NA,NA,"SELECT [id], [age] + 1 AS [age], [sex], [prov], [income], [wgt], [ref_date], [flag], [name], [amount] FROM [bm_mix_1e6]",integer
+mssql,age + 1,NA,NA,"SELECT [id], [age] + 1.0 AS [age], [sex], [prov], [income], [wgt], [ref_date], [flag], [name], [amount] FROM [bm_mix_1e6]",numeric
+oracle,"tbl(con, name)",4.630327224731445,27.59375,NA,NA
+oracle,lazy |> mutate(age = age + 1L),7.277250289916992,2241.9140625,NA,NA
+oracle,lazy |> mutate(...) |> sql_render(),17.681002616882324,2066.203125,NA,NA
+oracle,age (as stored),NA,NA,"SELECT * FROM ""bm_mix_1e6""",numeric
+oracle,age + 1L,NA,NA,"SELECT ""id"", ""age"" + 1 AS ""age"", ""sex"", ""prov"", ""income"", ""wgt"", ""ref_date"", ""flag"", ""name"", ""amount"" FROM ""bm_mix_1e6""",numeric
+oracle,age + 1,NA,NA,"SELECT ""id"", ""age"" + 1.0 AS ""age"", ""sex"", ""prov"", ""income"", ""wgt"", ""ref_date"", ""flag"", ""name"", ""amount"" FROM ""bm_mix_1e6""",numeric
+roracle,"tbl(con, name)",3.5654306411743164,92.8125,NA,NA
+roracle,lazy |> mutate(age = age + 1L),6.93058967590332,2630.8203125,NA,NA
+roracle,lazy |> mutate(...) |> sql_render(),14.858841896057129,2066.203125,NA,NA
+roracle,age (as stored),NA,NA,"SELECT * FROM ""bm_mix_1e6""",numeric
+roracle,age + 1L,NA,NA,"SELECT ""id"", ""age"" + 1 AS ""age"", ""sex"", ""prov"", ""income"", ""wgt"", ""ref_date"", ""flag"", ""name"", ""amount"" FROM ""bm_mix_1e6""",numeric
+roracle,age + 1,NA,NA,"SELECT ""id"", ""age"" + 1.0 AS ""age"", ""sex"", ""prov"", ""income"", ""wgt"", ""ref_date"", ""flag"", ""name"", ""amount"" FROM ""bm_mix_1e6""",numeric
+duckdb,"tbl(con, name)",10.110834962688386,56.703125,NA,NA
+duckdb,lazy |> mutate(age = age + 1L),6.762515986338258,2617.3203125,NA,NA
+duckdb,lazy |> mutate(...) |> sql_render(),31.454573036171496,1769.7109375,NA,NA
+duckdb,age (as stored),NA,NA,SELECT * FROM bm_mix_1e6,integer
+duckdb,age + 1L,NA,NA,"SELECT id, age + 1 AS age, sex, prov, income, wgt, ref_date, flag, ""name"", amount FROM bm_mix_1e6",integer
+duckdb,age + 1,NA,NA,"SELECT id, age + 1.0 AS age, sex, prov, income, wgt, ref_date, flag, ""name"", amount FROM bm_mix_1e6",numeric
